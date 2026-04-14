@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+			"SomeRandomDeveloper"
+		]
+	},
+	"speedscope-desc": "Allows creating Speedscope profiles",
+	"speedscope-notification-link-view": "View profile",
+	"speedscope-notification-link-json": "JSON",
+	"speedscope-notification-link-metadata": "Metadata",
+	"speedscope-notification-success": "Profile recorded successfully"
+}

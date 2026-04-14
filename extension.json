@@ -1,0 +1,85 @@
+{
+	"name": "Speedscope",
+	"author": [
+		"SomeRandomDeveloper"
+	],
+	"url": "https://www.mediawiki.org/wiki/Special:MyLanguage/Extension:Speedscope",
+	"descriptionmsg": "speedscope-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "other",
+	"requires": {
+		"MediaWiki": ">= 1.45.0",
+		"platform": {
+			"ext-excimer": "*",
+			"ext-zlib": "*"
+		}
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\Speedscope\\": "src/"
+	},
+	"config_prefix": "wgSpeedscope",
+	"config": {
+		"Endpoint": {
+			"description": "The endpoint to log the profile to.",
+			"value": "http://localhost:3000"
+		},
+		"Environment": {
+			"description": "The environment of the current request, e.g. 'prod' or 'dev'",
+			"value": "prod"
+		},
+		"ExcludedEntryPoints": {
+			"description": "A list of entry points that are excluded from sampling",
+			"value": [
+				"cli"
+			]
+		},
+		"ForcedParam": {
+			"description": "A query parameter that forces profiling when present",
+			"value": "forceprofile"
+		},
+		"Period": {
+			"description": "The period used by excimer",
+			"value": {
+				"forced": 0.0001,
+				"sample": 0.001
+			}
+		},
+		"SamplingRates": {
+			"description": "The sampling rates for each environment, between 0 and 1",
+			"value": {
+				"prod": 0.01
+			}
+		},
+		"Token": {
+			"description": "The authentication token to send to the speedscope service",
+			"value": null
+		}
+	},
+	"HookHandlers": {},
+	"Hooks": {},
+	"MessagesDirs": {
+		"Speedscope": [
+			"i18n"
+		]
+	},
+	"ResourceModules": {
+		"ext.speedscope.notification": {
+			"localBasePath": "resources/ext.speedscope.notification",
+			"remoteExtPath": "Speedscope/resources/ext.speedscope.notification",
+			"dependencies": [],
+			"styles": [],
+			"packageFiles": [
+				"notification.js"
+			],
+			"messages": [
+				"speedscope-notification-link-view",
+				"speedscope-notification-link-json",
+				"speedscope-notification-link-metadata",
+				"comma-separator",
+				"word-separator",
+				"parentheses"
+			]
+		}
+	},
+	"manifest_version": 2
+}

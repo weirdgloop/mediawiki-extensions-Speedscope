@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+			"SomeRandomDeveloper"
+		]
+	},
+	"speedscope-desc": "{{desc|name=Speedscope|url=https://www.mediawiki.org/wiki/Extension:Speedscope}}",
+	"speedscope-notification-link-view": "Label of the link to the speedscope UI for the profile; displayed in the speedscope notification.",
+	"speedscope-notification-link-json": "Label of the link to the JSON of the profile; displayed in the speedscope notification.",
+	"speedscope-notification-link-metadata": "Label of the link to the metadata of the profile; displayed in the speedscope notification.",
+	"speedscope-notification-success": "Title of the speedscope notification, indicating success."
+}
