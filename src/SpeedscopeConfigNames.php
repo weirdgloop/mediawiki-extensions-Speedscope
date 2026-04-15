@@ -14,6 +14,7 @@ class SpeedscopeConfigNames {
 	public const EXCLUDED_ENTRY_POINTS = self::PREFIX . 'ExcludedEntryPoints';
 	public const FORCED_PARAM = self::PREFIX . 'ForcedParam';
 	public const PERIOD = self::PREFIX . 'Period';
+	public const PUBLIC_ENDPOINT = self::PREFIX . 'PublicEndpoint';
 	public const SAMPLING_ENVIRONMENTS = self::PREFIX . 'SamplingEnvironments';
 	public const SAMPLING_RATE = self::PREFIX . 'SamplingRate';
 	public const TOKEN = self::PREFIX . 'Token';

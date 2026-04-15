@@ -44,6 +44,10 @@
 				"sample": 0.001
 			}
 		},
+		"PublicEndpoint": {
+			"description": "The public endpoint that can be used to view the profile. If null, defaults to $wgSpeedscopeEndpoint",
+			"value": null
+		},
 		"SamplingRates": {
 			"description": "The sampling rates for each environment, between 0 and 1",
 			"value": {

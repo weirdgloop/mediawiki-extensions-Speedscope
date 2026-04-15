@@ -25,8 +25,10 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 		if ( !$this->profile?->isForced() ) {
 			return;
 		}
+		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
+			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
 		$out->addJsConfigVars( [
-			'speedscopeEndpoint' => $this->config->get( SpeedscopeConfigNames::ENDPOINT ),
+			'speedscopeEndpoint' => $publicEndpoint,
 			'speedscopeProfileId' => $this->profile->getId(),
 		] );
 		$out->addModules( 'ext.speedscope.notification' );
@@ -68,4 +70,5 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 		}
 		RequestContext::getMain()->getRequest()->response()->header( "Profile-Id: {$profile->getId()}" );
 	}
+
 }
