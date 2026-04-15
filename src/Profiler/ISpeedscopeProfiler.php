@@ -7,7 +7,7 @@ use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 interface ISpeedscopeProfiler {
 
 	/**
-	 * @return SpeedscopeProfile|null The profile data, or null if non is being recorded
+	 * @return SpeedscopeProfile|null The profile that's being recorded, or null if none is being recorded
 	 */
 	public function getProfile(): ?SpeedscopeProfile;
 

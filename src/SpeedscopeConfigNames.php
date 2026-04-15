@@ -2,6 +2,9 @@
 
 namespace MediaWiki\Extension\Speedscope;
 
+/**
+ * Constants for the names of config options.
+ */
 class SpeedscopeConfigNames {
 
 	private const PREFIX = 'Speedscope';

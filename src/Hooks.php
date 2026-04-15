@@ -15,7 +15,10 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 	) {
 	}
 
-	/** @inheritDoc */
+	/**
+	 * For forced profiles, add JS config vars and the notification script to the output.
+	 * @inheritDoc
+	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
 		if ( !$this->profile?->isForced() ) {
 			return;
@@ -27,7 +30,10 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 		$out->addModules( 'ext.speedscope.notification' );
 	}
 
-	/** @inheritDoc */
+	/**
+	 * Retrieve the parser report from the parser output.
+	 * @inheritDoc
+	 */
 	public function onOutputPageParserOutput( $outputPage, $parserOutput ): void {
 		if ( !$this->profile?->shouldStoreParserReport() ) {
 			return;
@@ -35,7 +41,10 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 		$this->profile->setParserReport( $parserOutput->getLimitReportData() );
 	}
 
-	/** @inheritDoc */
+	/**
+	 * Detect if we should store the parser report.
+	 * @inheritDoc
+	 */
 	public function onParserBeforeInternalParse( $parser, &$text, $stripState ): void {
 		if ( !$this->profile ) {
 			return;

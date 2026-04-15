@@ -28,7 +28,8 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 	}
 
 	/**
-	 * Only for use by bootstrap.php!
+	 * Check if we should record a profile, and start the profiler if so.
+	 * @internal Only for use in bootstrap.php.
 	 */
 	public function init(): void {
 		if ( !extension_loaded( 'excimer' ) ) {
@@ -42,6 +43,10 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 	}
 
+	/**
+	 * Record a profile using excimer, and schedule a shutdown function or a callable update to send it to the
+	 * speedscope service.
+	 */
 	private function recordProfile(): void {
 		// Lazy-autoload class
 		require_once __DIR__ . '/../SpeedscopeProfile.php';
@@ -65,6 +70,9 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 	}
 
+	/**
+	 * Stop the profiler and send the profile to the speedscope service.
+	 */
 	private function send(): void {
 		if ( !MediaWikiServices::hasInstance() ) {
 			// We probably don't want the profile if the service container isn't even ready yet
@@ -93,6 +101,9 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 	}
 
+	/**
+	 * @return bool Whether the current request should be sampled.
+	 */
 	private function shouldSampleRequest(): bool {
 		$samplingRate = $this->config->getSamplingRates()[$this->config->getEnvironment()] ?? 0;
 		return !in_array( MW_ENTRY_POINT, $this->config->getExcludedEntryPoints() )
@@ -100,6 +111,10 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 			&& mt_rand() / mt_getrandmax() < $samplingRate;
 	}
 
+	/**
+	 * @return bool Whether a profile is forced for this request, either via the configured parameter or the
+	 * `SPEEDSCOPE_FORCE_PROFILE` environment variable.
+	 */
 	private function isForced(): bool {
 		// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 		return isset( $_GET[$this->config->getForcedParam()] ) || getenv( 'SPEEDSCOPE_FORCE_PROFILE' );

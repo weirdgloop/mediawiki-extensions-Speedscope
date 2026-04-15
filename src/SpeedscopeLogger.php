@@ -12,6 +12,9 @@ use MediaWiki\WikiMap\WikiMap;
 use StatusValue;
 use Throwable;
 
+/**
+ * Service used to log speedscope profiles to the speedscope service.
+ */
 class SpeedscopeLogger {
 
 	public const CONSTRUCTOR_OPTIONS = [
@@ -19,6 +22,9 @@ class SpeedscopeLogger {
 		SpeedscopeConfigNames::TOKEN,
 	];
 
+	/**
+	 * @internal Only for use in ServiceWiring.php.
+	 */
 	public function __construct(
 		private readonly ServiceOptions $options,
 		private readonly HttpRequestFactory $httpRequestFactory,
@@ -26,6 +32,9 @@ class SpeedscopeLogger {
 		$this->options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 	}
 
+	/**
+	 * Log a speedscope profile to the speedscope service.
+	 */
 	public function log( SpeedscopeProfile $profile ): StatusValue {
 		$data = $profile->getData();
 		if ( $data === null ) {
@@ -77,6 +86,12 @@ class SpeedscopeLogger {
 			->error( new RawMessage( 'Code: ' . $response->getStatusCode() ) );
 	}
 
+	/**
+	 * Add some additional data to the profile.
+	 * @param array<string, mixed> $data
+	 * @param string $requestUri
+	 * @return array<string, mixed>
+	 */
 	private function appendAdditionalData( array $data, string $requestUri ): array {
 		$data['profiles'][0]['name'] = $requestUri;
 		$data['cpuinfo'] = file_get_contents( '/proc/stat' );
