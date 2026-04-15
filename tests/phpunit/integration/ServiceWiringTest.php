@@ -4,6 +4,9 @@ namespace MediaWiki\Extension\Speedscope\Tests\Integration;
 
 use MediaWikiIntegrationTestCase;
 
+/**
+ * @coversNothing As files cannot be covered.
+ */
 class ServiceWiringTest extends MediaWikiIntegrationTestCase {
 
 	public function testServices() {

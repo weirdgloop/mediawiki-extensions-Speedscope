@@ -6,8 +6,8 @@
  */
 
 use MediaWiki\Config\ServiceOptions;
-use MediaWiki\Extension\Speedscope\ISpeedscopeProfiler;
-use MediaWiki\Extension\Speedscope\NoOpSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\NoOpSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
 use MediaWiki\MediaWikiServices;
 

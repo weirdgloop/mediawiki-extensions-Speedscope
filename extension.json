@@ -81,5 +81,8 @@
 			]
 		}
 	},
+	"ServiceWiringFiles": [
+		"src/ServiceWiring.php"
+	],
 	"manifest_version": 2
 }

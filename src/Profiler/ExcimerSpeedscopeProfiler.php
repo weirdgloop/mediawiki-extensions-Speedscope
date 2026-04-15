@@ -1,9 +1,13 @@
 <?php
 
-namespace MediaWiki\Extension\Speedscope;
+namespace MediaWiki\Extension\Speedscope\Profiler;
 
 use ExcimerProfiler;
+use LogicException;
 use MediaWiki\Deferred\DeferredUpdates;
+use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
+use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
@@ -15,26 +19,22 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 	private ExcimerProfiler $excimer;
 	private ?SpeedscopeProfile $profile = null;
 
-	private function __construct(
+	/**
+	 * Only for use by bootstrap.php!
+	 */
+	public function __construct(
 		private readonly SpeedscopeConfig $config,
 	) {
 	}
 
-	public static function init(): void {
-		global $wgSpeedscopeProfiler;
-		if ( $wgSpeedscopeProfiler ) {
-			wfLogWarning( 'Called ' . __METHOD__ . ', but the speedscope profiler is already initialized!' );
-			return;
-		}
-
-		$wgSpeedscopeProfiler = new self( SpeedscopeConfig::newFromGlobals() );
-		$wgSpeedscopeProfiler->initInternal();
-	}
-
-	private function initInternal(): void {
+	/**
+	 * Only for use by bootstrap.php!
+	 */
+	public function init(): void {
 		if ( !extension_loaded( 'excimer' ) ) {
-			wfLogWarning( 'Excimer needs to be loaded to use the Speedscope extension!' );
-			return;
+			// This is already required in extension.json, but let's throw here instead of below when constructing
+			// an ExcimerProfiler
+			throw new LogicException( 'Excimer needs to be loaded to use the Speedscope extension!' );
 		}
 
 		if ( $this->isForced() || $this->shouldSampleRequest() ) {
@@ -43,6 +43,9 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 	}
 
 	private function recordProfile(): void {
+		// Lazy-autoload class
+		require_once __DIR__ . '/../SpeedscopeProfile.php';
+
 		$this->profile = new SpeedscopeProfile(
 			environment: $this->config->getEnvironment(),
 			forced: $this->isForced(),

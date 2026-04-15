@@ -1,6 +1,8 @@
 <?php
 
-namespace MediaWiki\Extension\Speedscope;
+namespace MediaWiki\Extension\Speedscope\Profiler;
+
+use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 
 class NoOpSpeedscopeProfiler implements ISpeedscopeProfiler {
 
