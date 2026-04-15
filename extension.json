@@ -25,35 +25,28 @@
 			"value": "http://localhost:3000"
 		},
 		"Environment": {
-			"description": "The environment of the current request, e.g. 'prod' or 'dev'",
-			"value": "prod"
+			"description": "The environment of the current request, e.g. 'prod' or 'dev'. Default defined in bootstrap.php",
+			"value": null
 		},
 		"ExcludedEntryPoints": {
-			"description": "A list of entry points that are excluded from sampling",
-			"value": [
-				"cli"
-			]
+			"description": "A list of entry points that are excluded from sampling. Default defined in bootstrap.php",
+			"value": null
 		},
 		"ForcedParam": {
-			"description": "A query parameter that forces profiling when present",
-			"value": "forceprofile"
+			"description": "A query parameter that forces profiling when present. Default defined in bootstrap.php",
+			"value": null
 		},
 		"Period": {
-			"description": "The period used by excimer",
-			"value": {
-				"forced": 0.0001,
-				"sample": 0.001
-			}
+			"description": "The period used by excimer. Default defined in bootstrap.php",
+			"value": null
 		},
 		"PublicEndpoint": {
 			"description": "The public endpoint that can be used to view the profile. If null, defaults to $wgSpeedscopeEndpoint",
 			"value": null
 		},
 		"SamplingRates": {
-			"description": "The sampling rates for each environment, between 0 and 1",
-			"value": {
-				"prod": 0.01
-			}
+			"description": "The sampling rates for each environment, between 0 and 1. Default defined in bootstrap.php",
+			"value": null
 		},
 		"Token": {
 			"description": "The authentication token to send to the speedscope service",

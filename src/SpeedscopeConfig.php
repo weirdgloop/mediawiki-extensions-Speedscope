@@ -28,14 +28,12 @@ class SpeedscopeConfig {
 		global $wgSpeedscopeEnvironment, $wgSpeedscopeExcludedEntryPoints, $wgSpeedscopeForcedParam,
 			   $wgSpeedscopePeriod, $wgSpeedscopeSamplingRates;
 
-		// TODO enforce setting some of these options
-		// TODO remove defaults from extension.json and use ??= here instead?
 		return new self(
-			environment: $wgSpeedscopeEnvironment ?? 'prod',
-			excludedEntryPoints: $wgSpeedscopeExcludedEntryPoints ?? [ 'cli' ],
-			forcedParam: $wgSpeedscopeForcedParam ?? 'forceprofile',
-			period: $wgSpeedscopePeriod ?? [ 'forced' => 0.0001, 'sample' => 0.001 ],
-			samplingRates: $wgSpeedscopeSamplingRates ?? [ 'prod' => '0.01' ],
+			environment: $wgSpeedscopeEnvironment,
+			excludedEntryPoints: $wgSpeedscopeExcludedEntryPoints,
+			forcedParam: $wgSpeedscopeForcedParam,
+			period: $wgSpeedscopePeriod,
+			samplingRates: $wgSpeedscopeSamplingRates,
 		);
 	}
 
