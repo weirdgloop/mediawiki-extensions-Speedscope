@@ -15,8 +15,7 @@ class SpeedscopeConfigNames {
 	public const FORCED_PARAM = self::PREFIX . 'ForcedParam';
 	public const PERIOD = self::PREFIX . 'Period';
 	public const PUBLIC_ENDPOINT = self::PREFIX . 'PublicEndpoint';
-	public const SAMPLING_ENVIRONMENTS = self::PREFIX . 'SamplingEnvironments';
-	public const SAMPLING_RATE = self::PREFIX . 'SamplingRate';
+	public const SAMPLING_RATES = self::PREFIX . 'SamplingRates';
 	public const TOKEN = self::PREFIX . 'Token';
 
 }
