@@ -1,0 +1,56 @@
+name: Lint code
+on:
+  push:
+jobs:
+  lint-php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Installing PHP
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: '8.2'
+
+      - name: Get Composer Cache Directory 2
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v5
+        id: actions-cache
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Cache PHP dependencies
+        uses: actions/cache@v5
+        id: vendor-cache
+        with:
+          path: vendor
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
+
+      - name: Composer install
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        run: composer install  --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
+
+      - name: Lint code
+        run: composer run test
+  lint-js:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
