@@ -120,9 +120,7 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		return isset( $_GET[$this->config->getForcedParam()] ) || getenv( 'SPEEDSCOPE_FORCE_PROFILE' );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	/** @inheritDoc */
 	public function getProfile(): ?SpeedscopeProfile {
 		return $this->profile;
 	}

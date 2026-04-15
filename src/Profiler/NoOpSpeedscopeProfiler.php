@@ -11,9 +11,7 @@ use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
  */
 class NoOpSpeedscopeProfiler implements ISpeedscopeProfiler {
 
-	/**
-	 * @inheritDoc
-	 */
+	/** @inheritDoc */
 	public function getProfile(): ?SpeedscopeProfile {
 		return null;
 	}
