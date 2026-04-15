@@ -64,6 +64,9 @@
 			]
 		}
 	},
+	"ExtensionFunctions": [
+		"MediaWiki\\Extension\\Speedscope\\Hooks::sendProfileHeader"
+	],
 	"Hooks": {
 		"BeforePageDisplay": "main",
 		"OutputPageParserOutput": "main",

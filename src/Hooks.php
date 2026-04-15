@@ -3,8 +3,10 @@
 namespace MediaWiki\Extension\Speedscope;
 
 use MediaWiki\Config\Config;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserBeforeInternalParseHook;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\Hook\BeforePageDisplayHook;
 
 class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, ParserBeforeInternalParseHook {
@@ -52,5 +54,18 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 		if ( str_starts_with( ( $parser->getOptions()?->getRenderReason() ?? '' ), 'page_view' ) ) {
 			$this->profile->setStoreParserReport( true );
 		}
+	}
+
+	/**
+	 * Send the profile ID via the header.
+	 * This is called as an extension function.
+	 */
+	public static function sendProfileHeader(): void {
+		$profile = MediaWikiServices::getInstance()->getService( 'Speedscope.Profile' );
+		/** @var SpeedscopeProfile|null $profile */
+		if ( !$profile ) {
+			return;
+		}
+		RequestContext::getMain()->getRequest()->response()->header( "Profile-Id: {$profile->getId()}" );
 	}
 }
