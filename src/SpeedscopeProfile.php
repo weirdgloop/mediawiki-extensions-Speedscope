@@ -11,7 +11,7 @@ class SpeedscopeProfile {
 
 	/** @var array<string, mixed>|null */
 	private ?array $data = null;
-	/** @see ParserOutput::getLimitReportData() */
+	/** @see ParserOutput::getLimitReportJSData() */
 	private ?array $parserReport = null;
 	/** @var bool Whether we should store the parser output for the current request */
 	private bool $storeParserReport = false;
@@ -68,14 +68,15 @@ class SpeedscopeProfile {
 	/**
 	 * @return array|null The parser report for the current request, or null if there was no page view parse during
 	 * this request.
-	 * @see ParserOutput::getLimitReportData()
+	 * @see ParserOutput::getLimitReportJSData()
 	 */
 	public function getParserReport(): ?array {
 		return $this->parserReport;
 	}
 
 	/**
-	 * @param array|null $parserReport The parser report for the current request.
+	 * @param array|null $parserReport The parser report for the current request. This should be the result of
+	 * {@see ParserOutput::getLimitReportJSData}.
 	 */
 	public function setParserReport( ?array $parserReport ): void {
 		$this->parserReport = $parserReport;

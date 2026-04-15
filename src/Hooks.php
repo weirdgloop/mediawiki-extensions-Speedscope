@@ -38,7 +38,7 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 		if ( !$this->profile?->shouldStoreParserReport() ) {
 			return;
 		}
-		$this->profile->setParserReport( $parserOutput->getLimitReportData() );
+		$this->profile->setParserReport( $parserOutput->getLimitReportJSData() );
 	}
 
 	/**
