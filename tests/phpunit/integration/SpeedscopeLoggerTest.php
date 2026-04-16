@@ -24,7 +24,7 @@ class SpeedscopeLoggerTest extends MediaWikiIntegrationTestCase {
 	public function testAppendAdditionalData() {
 		$data = $this->getProfileLogger()->appendAdditionalData( [ 'foo' => 'bar' ], '/test/url' );
 		$this->assertArrayNotHasKey( 'cpuinfo', $data );
-		$this->assertEquals( $data['profiles'][0]['name'], '/test/url' );
+		$this->assertEquals( '/test/url', $data['profiles'][0]['name'] );
 		$this->assertIsFloat( $data['microtime'] );
 		$this->assertEquals( wfHostname(), $data['hostname'] );
 		$this->assertIsInt( $data['memory_peak_allocated_bytes'] );
