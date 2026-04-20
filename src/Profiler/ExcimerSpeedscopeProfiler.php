@@ -18,6 +18,7 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 
 	private ExcimerProfiler $excimer;
 	private ?SpeedscopeProfile $profile = null;
+	private bool $stopped = false;
 	/** Currently only used in tests */
 	private bool $forceDeferredUpdate = false;
 
@@ -42,22 +43,23 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 		// @codeCoverageIgnoreEnd
 
-		if ( $this->isForced() || $this->shouldSampleRequest() ) {
-			$this->recordProfile();
+		$forced = $this->isForced();
+		if ( $forced ) {
+			$this->recordProfile( $forced );
+		} elseif ( $this->shouldSampleRequest() ) {
+			$this->recordProfile( SpeedscopeProfile::CAUSE_SAMPLE );
 		}
 	}
 
 	/**
 	 * Record a profile using excimer, and schedule a shutdown function or a callable update to send it to the
 	 * speedscope service.
+	 * @inheritDoc
 	 */
-	private function recordProfile(): void {
-		// Load class manually, as this is run very early in MediaWiki's bootstrapping process
-		require_once __DIR__ . '/../SpeedscopeProfile.php';
-
+	public function recordProfile( string $cause ): void {
 		$this->profile = new SpeedscopeProfile(
 			environment: $this->config->getEnvironment(),
-			forced: $this->isForced(),
+			cause: $cause,
 			id: bin2hex( random_bytes( 16 ) )
 		);
 
@@ -74,6 +76,14 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 	}
 
+	public function stopRecording(): void {
+		if ( $this->stopped ) {
+			return;
+		}
+		$this->stopped = true;
+		$this->excimer->stop();
+	}
+
 	/**
 	 * Stop the profiler and send the profile to the speedscope service.
 	 */
@@ -86,7 +96,7 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 		// @codeCoverageIgnoreEnd
 
-		$this->excimer->stop();
+		$this->stopRecording();
 		$this->profile->setData( $this->excimer->getLog()->getSpeedscopeData() );
 
 		$profileLogger = MediaWikiServices::getInstance()->getService( 'Speedscope.ProfileLogger' );
@@ -118,12 +128,18 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 	}
 
 	/**
-	 * @return bool Whether a profile is forced for this request, either via the configured parameter or the
+	 * Checks Whether a profile is forced for this request, either via the configured parameter or the
 	 * `SPEEDSCOPE_FORCE_PROFILE` environment variable.
+	 * @return string|null One of the SpeedscopeProfile::CAUSE... constants
 	 */
-	private function isForced(): bool {
+	private function isForced(): ?string {
 		// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
-		return isset( $_GET[$this->config->getForcedParam()] ) || getenv( 'SPEEDSCOPE_FORCE_PROFILE' );
+		if ( isset( $_GET[$this->config->getForcedParam()] ) ) {
+			return SpeedscopeProfile::CAUSE_FORCED_URL;
+		} elseif ( getenv( 'SPEEDSCOPE_FORCE_PROFILE' ) ) {
+			return SpeedscopeProfile::CAUSE_FORCED_ENV;
+		}
+		return null;
 	}
 
 	/** @inheritDoc */

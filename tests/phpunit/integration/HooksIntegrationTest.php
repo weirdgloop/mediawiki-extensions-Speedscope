@@ -3,12 +3,12 @@
 namespace MediaWiki\Extension\Speedscope\Tests\Integration;
 
 use MediaWiki\Context\RequestContext;
-use MediaWiki\Extension\Speedscope\Hooks;
+use MediaWiki\Extension\Speedscope\ProfileHooks;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWikiIntegrationTestCase;
 
 /**
- * @covers \MediaWiki\Extension\Speedscope\Hooks
+ * @covers \MediaWiki\Extension\Speedscope\ProfileHooks
  */
 class HooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
@@ -18,7 +18,7 @@ class HooksIntegrationTest extends MediaWikiIntegrationTestCase {
 			false,
 			'test-id'
 		) );
-		Hooks::sendProfileHeader();
+		ProfileHooks::sendProfileHeader();
 		$this->assertEquals(
 			'test-id',
 			RequestContext::getMain()->getRequest()->response()->getHeader( 'Profile-Id' )
@@ -27,7 +27,7 @@ class HooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
 	public function testSendProfileHeader_NoProfile() {
 		$this->setService( 'Speedscope.Profile', static fn () => null );
-		Hooks::sendProfileHeader();
+		ProfileHooks::sendProfileHeader();
 		$this->assertNull( RequestContext::getMain()->getRequest()->response()->getHeader( 'Profile-Id' ) );
 	}
 

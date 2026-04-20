@@ -1,15 +1,21 @@
 <?php
 
-namespace MediaWiki\Extension\Speedscope;
+namespace MediaWiki\Extension\Speedscope\HookHandlers;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Output\Hook\BeforePageDisplayHook;
 
-class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, ParserBeforeInternalParseHook {
+class ProfileHooks implements
+	BeforePageDisplayHook,
+	OutputPageParserOutputHook,
+	ParserBeforeInternalParseHook
+{
 
 	public function __construct(
 		private readonly Config $config,
@@ -22,9 +28,10 @@ class Hooks implements BeforePageDisplayHook, OutputPageParserOutputHook, Parser
 	 * @inheritDoc
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
-		if ( !$this->profile?->isForced() ) {
+		if ( $this->profile?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_URL ) {
 			return;
 		}
+		// TODO use profile->getURL?
 		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
 			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
 		$out->addJsConfigVars( [

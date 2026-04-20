@@ -3,7 +3,7 @@
 namespace MediaWiki\Extension\Speedscope\Tests\Unit;
 
 use MediaWiki\Config\HashConfig;
-use MediaWiki\Extension\Speedscope\Hooks;
+use MediaWiki\Extension\Speedscope\ProfileHooks;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Output\OutputPage;
@@ -15,16 +15,16 @@ use MediaWiki\Skin\Skin;
 use MediaWikiUnitTestCase;
 
 /**
- * @covers \MediaWiki\Extension\Speedscope\Hooks
+ * @covers \MediaWiki\Extension\Speedscope\ProfileHooks
  */
 class HooksUnitTest extends MediaWikiUnitTestCase {
 
-	private function newHooks( ?SpeedscopeProfile $profile, array $configOverrides = [] ): Hooks {
+	private function newHooks( ?SpeedscopeProfile $profile, array $configOverrides = [] ): ProfileHooks {
 		$config = new HashConfig( $configOverrides + [
 			SpeedscopeConfigNames::ENDPOINT => 'localhost:3000',
 			SpeedscopeConfigNames::PUBLIC_ENDPOINT => null,
 		] );
-		return new Hooks( $config, $profile );
+		return new ProfileHooks( $config, $profile );
 	}
 
 	public function testOnBeforePageDisplay_Forced() {
