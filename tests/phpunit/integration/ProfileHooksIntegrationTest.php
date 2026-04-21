@@ -10,7 +10,7 @@ use MediaWikiIntegrationTestCase;
 /**
  * @covers \MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks
  */
-class HooksIntegrationTest extends MediaWikiIntegrationTestCase {
+class ProfileHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
 	public function testSendProfileHeader_SendsHeader() {
 		$this->setService( 'Speedscope.Profile', static fn () => new SpeedscopeProfile(

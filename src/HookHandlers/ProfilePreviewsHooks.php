@@ -20,9 +20,9 @@ class ProfilePreviewsHooks implements
 	ParserLimitReportPrepareHook
 {
 
-	private const EXTENSION_DATA_KEY = 'speedscope-profile';
-	private const LIMIT_REPORT_KEY = 'speedscope-profile';
-	private const PREFERENCE_NAME = 'speedscope-profile-previews';
+	public const EXTENSION_DATA_KEY = 'speedscope-profile';
+	public const LIMIT_REPORT_KEY = 'speedscope-profile';
+	public const PREFERENCE_NAME = 'speedscope-profile-previews';
 
 	public function __construct(
 		private readonly Config $config,
@@ -57,7 +57,11 @@ class ProfilePreviewsHooks implements
 		// TODO what do we do if we're already recording a profile?
 		if ( !$this->profiler->getProfile() ) {
 			$this->profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW );
-			ProfileHooks::sendProfileHeader();
+			// @codeCoverageIgnoreStart
+			if ( !defined( 'MW_PHPUNIT_TEST' ) ) {
+				ProfileHooks::sendProfileHeader();
+			}
+			// @codeCoverageIgnoreEnd
 		}
 		$parser->getOutput()->setLimitReportData(
 			self::LIMIT_REPORT_KEY,

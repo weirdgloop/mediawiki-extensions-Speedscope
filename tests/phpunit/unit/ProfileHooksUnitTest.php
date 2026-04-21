@@ -17,7 +17,7 @@ use MediaWikiUnitTestCase;
 /**
  * @covers \MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks
  */
-class HooksUnitTest extends MediaWikiUnitTestCase {
+class ProfileHooksUnitTest extends MediaWikiUnitTestCase {
 
 	private function newHooks( ?SpeedscopeProfile $profile, array $configOverrides = [] ): ProfileHooks {
 		$config = new HashConfig( $configOverrides + [
