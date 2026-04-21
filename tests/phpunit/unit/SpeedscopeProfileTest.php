@@ -11,14 +11,14 @@ use MediaWikiUnitTestCase;
 class SpeedscopeProfileTest extends MediaWikiUnitTestCase {
 
 	public function testConstruct() {
-		$profile = new SpeedscopeProfile( 'test-env', true, 'test-id' );
+		$profile = new SpeedscopeProfile( 'test-env', SpeedscopeProfile::CAUSE_FORCED_URL, 'test-id' );
 		$this->assertEquals( 'test-env', $profile->getEnvironment() );
-		$this->assertTrue( $profile->isForced() );
+		$this->assertEquals( SpeedscopeProfile::CAUSE_FORCED_URL, $profile->getCause() );
 		$this->assertEquals( 'test-id', $profile->getId() );
 	}
 
 	public function testGettersAndSetters() {
-		$profile = new SpeedscopeProfile( 'test-env', true, 'test-id' );
+		$profile = new SpeedscopeProfile( 'test-env', SpeedscopeProfile::CAUSE_SAMPLE, 'test-id' );
 
 		$this->assertNull( $profile->getData() );
 		$data = [ 'test' => 'data' ];

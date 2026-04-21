@@ -16,4 +16,12 @@ class NoOpSpeedscopeProfiler implements ISpeedscopeProfiler {
 		return null;
 	}
 
+	/** @inheritDoc */
+	public function recordProfile( string $cause ): void {
+	}
+
+	/** @inheritDoc */
+	public function stopRecording(): void {
+	}
+
 }

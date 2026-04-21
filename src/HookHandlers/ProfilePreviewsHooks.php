@@ -31,7 +31,6 @@ class ProfilePreviewsHooks implements
 	) {
 	}
 
-
 	/** @inheritDoc */
 	public function onGetPreferences( $user, &$preferences ): void {
 		$preferences[self::PREFERENCE_NAME] = [
@@ -42,7 +41,11 @@ class ProfilePreviewsHooks implements
 		];
 	}
 
-	/** @inheritDoc */
+	/**
+	 * Start recording a profile if a preview parse starts and the user preference is enabled.
+	 * Also set the limit report and extension data entries.
+	 * @inheritDoc
+	 */
 	public function onParserBeforeInternalParse( $parser, &$text, $stripState ): void {
 		if ( $parser->getOptions()?->getRenderReason() !== 'page-preview' ) {
 			return;
@@ -51,6 +54,7 @@ class ProfilePreviewsHooks implements
 		if ( !$this->userOptionsLookup->getBoolOption( $user, self::PREFERENCE_NAME ) ) {
 			return;
 		}
+		// TODO what do we do if we're already recording a profile?
 		if ( !$this->profiler->getProfile() ) {
 			$this->profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW );
 			ProfileHooks::sendProfileHeader();
@@ -62,7 +66,10 @@ class ProfilePreviewsHooks implements
 		$parser->getOutput()->setExtensionData( self::EXTENSION_DATA_KEY, true );
 	}
 
-	/** @inheritDoc */
+	/**
+	 * Add a link to the profile viewer to the parser report.
+	 * @inheritDoc
+	 */
 	public function onParserLimitReportFormat( $key, &$value, &$report, $isHTML, $localize ): void {
 		if ( !$isHTML || $key !== self::LIMIT_REPORT_KEY ) {
 			return;

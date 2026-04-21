@@ -3,19 +3,19 @@
 namespace MediaWiki\Extension\Speedscope\Tests\Integration;
 
 use MediaWiki\Context\RequestContext;
-use MediaWiki\Extension\Speedscope\ProfileHooks;
+use MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWikiIntegrationTestCase;
 
 /**
- * @covers \MediaWiki\Extension\Speedscope\ProfileHooks
+ * @covers \MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks
  */
 class HooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
 	public function testSendProfileHeader_SendsHeader() {
 		$this->setService( 'Speedscope.Profile', static fn () => new SpeedscopeProfile(
 			'test',
-			false,
+			SpeedscopeProfile::CAUSE_SAMPLE,
 			'test-id'
 		) );
 		ProfileHooks::sendProfileHeader();
