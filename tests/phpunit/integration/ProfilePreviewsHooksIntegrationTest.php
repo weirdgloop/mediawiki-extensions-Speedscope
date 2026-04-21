@@ -62,7 +62,7 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 			$mock->method( 'getProfile' )
 				->willReturnCallback( static function () use ( $profile, &$recordingStarted ) {
 					return $recordingStarted ? $profile : null;
-				});
+				} );
 
 			return $mock;
 		} );
