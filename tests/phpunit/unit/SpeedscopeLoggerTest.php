@@ -38,7 +38,7 @@ class SpeedscopeLoggerTest extends MediaWikiUnitTestCase {
 	}
 
 	private function newProfile( ?array $data ) {
-		$profile = new SpeedscopeProfile( 'test', false, 'abc' );
+		$profile = new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' );
 		$profile->setData( $data );
 		return $profile;
 	}

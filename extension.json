@@ -59,20 +59,35 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "MediaWiki\\Extension\\Speedscope\\Hooks",
+			"class": "MediaWiki\\Extension\\Speedscope\\HookHandlers\\ProfileHooks",
 			"services": [
 				"MainConfig",
 				"Speedscope.Profile"
 			]
+		},
+		"profile-previews": {
+			"class": "MediaWiki\\Extension\\Speedscope\\HookHandlers\\ProfilePreviewsHooks",
+			"services": [
+				"MainConfig",
+				"Speedscope.Profiler",
+				"UserOptionsLookup"
+			]
 		}
 	},
 	"ExtensionFunctions": [
-		"MediaWiki\\Extension\\Speedscope\\Hooks::sendProfileHeader"
+		"MediaWiki\\Extension\\Speedscope\\HookHandlers\\ProfileHooks::sendProfileHeader"
 	],
 	"Hooks": {
 		"BeforePageDisplay": "main",
+		"EditPageGetCheckboxesDefinition": "profile-previews",
+		"GetPreferences": "profile-previews",
 		"OutputPageParserOutput": "main",
-		"ParserBeforeInternalParse": "main"
+		"ParserBeforeInternalParse": [
+			"main",
+			"profile-previews"
+		],
+		"ParserLimitReportFormat": "profile-previews",
+		"ParserLimitReportPrepare": "profile-previews"
 	},
 	"MessagesDirs": {
 		"Speedscope": [

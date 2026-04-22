@@ -3,7 +3,7 @@
 namespace MediaWiki\Extension\Speedscope\Tests\Unit;
 
 use MediaWiki\Config\HashConfig;
-use MediaWiki\Extension\Speedscope\Hooks;
+use MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Output\OutputPage;
@@ -15,21 +15,21 @@ use MediaWiki\Skin\Skin;
 use MediaWikiUnitTestCase;
 
 /**
- * @covers \MediaWiki\Extension\Speedscope\Hooks
+ * @covers \MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks
  */
-class HooksUnitTest extends MediaWikiUnitTestCase {
+class ProfileHooksUnitTest extends MediaWikiUnitTestCase {
 
-	private function newHooks( ?SpeedscopeProfile $profile, array $configOverrides = [] ): Hooks {
+	private function newHooks( ?SpeedscopeProfile $profile, array $configOverrides = [] ): ProfileHooks {
 		$config = new HashConfig( $configOverrides + [
 			SpeedscopeConfigNames::ENDPOINT => 'localhost:3000',
 			SpeedscopeConfigNames::PUBLIC_ENDPOINT => null,
 		] );
-		return new Hooks( $config, $profile );
+		return new ProfileHooks( $config, $profile );
 	}
 
 	public function testOnBeforePageDisplay_Forced() {
 		$hooks = $this->newHooks(
-			new SpeedscopeProfile( 'test', true, 'abc' ),
+			new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_FORCED_URL, 'abc' ),
 			[ SpeedscopeConfigNames::ENDPOINT => 'test-endpoint' ]
 		);
 		$out = $this->createMock( OutputPage::class );
@@ -44,7 +44,7 @@ class HooksUnitTest extends MediaWikiUnitTestCase {
 
 	public function testOnBeforePageDisplay_Forced_PublicEndpoint() {
 		$hooks = $this->newHooks(
-			new SpeedscopeProfile( 'test', true, 'abc' ),
+			new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_FORCED_URL, 'abc' ),
 			[ SpeedscopeConfigNames::PUBLIC_ENDPOINT => 'test-public-endpoint' ]
 		);
 		$out = $this->createMock( OutputPage::class );
@@ -65,14 +65,14 @@ class HooksUnitTest extends MediaWikiUnitTestCase {
 	}
 
 	public function testOnBeforePageDisplay_NotForced() {
-		$hooks = $this->newHooks( new SpeedscopeProfile( 'test', false, 'abc' ) );
+		$hooks = $this->newHooks( new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' ) );
 		$out = $this->createNoOpMock( OutputPage::class );
 		$skin = $this->createNoOpMock( Skin::class );
 		$hooks->onBeforePageDisplay( $out, $skin );
 	}
 
 	public function testOnOutputPageParserOutput_ShouldStoreParserReport() {
-		$profile = new SpeedscopeProfile( 'test', false, 'abc' );
+		$profile = new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' );
 		$profile->setStoreParserReport( true );
 		$hooks = $this->newHooks( $profile );
 		$out = $this->createNoOpMock( OutputPage::class );
@@ -94,7 +94,7 @@ class HooksUnitTest extends MediaWikiUnitTestCase {
 	}
 
 	public function testOnOutputPageParserOutput_ShouldNotStoreParserReport() {
-		$profile = new SpeedscopeProfile( 'test', false, 'abc' );
+		$profile = new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' );
 		$profile->setStoreParserReport( false );
 		$hooks = $this->newHooks( $profile );
 		$out = $this->createNoOpMock( OutputPage::class );
@@ -104,7 +104,7 @@ class HooksUnitTest extends MediaWikiUnitTestCase {
 	}
 
 	public function testOnParserBeforeInternalParse_ShouldStore_PageView() {
-		$profile = new SpeedscopeProfile( 'test', false, 'abc' );
+		$profile = new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' );
 		$hooks = $this->newHooks( $profile );
 		$parserOptions = $this->createMock( ParserOptions::class );
 		$parserOptions->expects( $this->once() )->method( 'getRenderReason' )->willReturn( 'page_view' );
@@ -117,7 +117,7 @@ class HooksUnitTest extends MediaWikiUnitTestCase {
 	}
 
 	public function testOnParserBeforeInternalParse_ShouldStore_PageViewOldId() {
-		$profile = new SpeedscopeProfile( 'test', false, 'abc' );
+		$profile = new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' );
 		$hooks = $this->newHooks( $profile );
 		$parserOptions = $this->createMock( ParserOptions::class );
 		$parserOptions->expects( $this->once() )->method( 'getRenderReason' )->willReturn( 'page_view_oldid' );
@@ -130,7 +130,7 @@ class HooksUnitTest extends MediaWikiUnitTestCase {
 	}
 
 	public function testOnParserBeforeInternalParse_NoParserOptions() {
-		$profile = new SpeedscopeProfile( 'test', false, 'abc' );
+		$profile = new SpeedscopeProfile( 'test', SpeedscopeProfile::CAUSE_SAMPLE, 'abc' );
 		$hooks = $this->newHooks( $profile );
 		$parser = $this->createMock( Parser::class );
 		$parser->expects( $this->once() )->method( 'getOptions' )->willReturn( null );

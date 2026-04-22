@@ -13,5 +13,12 @@
 	"speedscope-log-error-no-data": "Attempted to log profile without data!",
 	"speedscope-log-error-no-token": "No token set!",
 	"speedscope-log-error-request-failed": "Request failed: $1",
-	"speedscope-log-error-request-bad-status": "Request returned bad status code $1. Response: $2"
+	"speedscope-log-error-request-bad-status": "Request returned bad status code $1. Response: $2",
+	"speedscope-profile-previews-label": "Profile previews",
+	"speedscope-profile-previews-help": "Profile all previews and link to the speedscope viewer in the parser report",
+	"speedscope-parser-report-label": "Speedscope profile",
+	"speedscope-parser-report-link-text": "View",
+	"speedscope-editpage-profile-preview-label": "Generate flamegraph",
+	"speedscope-editpage-profile-preview-title": "Generate a speedscope flamegraph for the preview.",
+	"speedscope-editpage-profile-notice": "A speedscope profile for this preview can be viewed [$1 here]."
 }

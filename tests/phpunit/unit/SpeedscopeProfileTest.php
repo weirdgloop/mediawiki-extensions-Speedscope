@@ -11,14 +11,14 @@ use MediaWikiUnitTestCase;
 class SpeedscopeProfileTest extends MediaWikiUnitTestCase {
 
 	public function testConstruct() {
-		$profile = new SpeedscopeProfile( 'test-env', true, 'test-id' );
+		$profile = new SpeedscopeProfile( 'test-env', SpeedscopeProfile::CAUSE_FORCED_URL, 'test-id' );
 		$this->assertEquals( 'test-env', $profile->getEnvironment() );
-		$this->assertTrue( $profile->isForced() );
+		$this->assertEquals( SpeedscopeProfile::CAUSE_FORCED_URL, $profile->getCause() );
 		$this->assertEquals( 'test-id', $profile->getId() );
 	}
 
 	public function testGettersAndSetters() {
-		$profile = new SpeedscopeProfile( 'test-env', true, 'test-id' );
+		$profile = new SpeedscopeProfile( 'test-env', SpeedscopeProfile::CAUSE_SAMPLE, 'test-id' );
 
 		$this->assertNull( $profile->getData() );
 		$data = [ 'test' => 'data' ];
@@ -33,6 +33,35 @@ class SpeedscopeProfileTest extends MediaWikiUnitTestCase {
 		$this->assertFalse( $profile->shouldStoreParserReport() );
 		$profile->setStoreParserReport( true );
 		$this->assertTrue( $profile->shouldStoreParserReport() );
+	}
+
+	/**
+	 * @dataProvider provideTestIsForced
+	 */
+	public function testIsForced( string $cause, bool $expected ) {
+		$profile = new SpeedscopeProfile( 'test', $cause, 'test-id' );
+		$this->assertEquals( $expected, $profile->isForced() );
+	}
+
+	private static function provideTestIsForced(): array {
+		return [
+			[
+				SpeedscopeProfile::CAUSE_SAMPLE,
+				false,
+			],
+			[
+				SpeedscopeProfile::CAUSE_FORCED_PREVIEW,
+				true,
+			],
+			[
+				SpeedscopeProfile::CAUSE_FORCED_URL,
+				true,
+			],
+			[
+				SpeedscopeProfile::CAUSE_FORCED_ENV,
+				true,
+			],
+		];
 	}
 
 }

@@ -13,5 +13,12 @@
 	"speedscope-log-error-no-data": "{{notranslate}}",
 	"speedscope-log-error-no-token": "{{notranslate}}",
 	"speedscope-log-error-request-failed": "{{notranslate}}",
-	"speedscope-log-error-request-bad-status": "{{notranslate}}"
+	"speedscope-log-error-request-bad-status": "{{notranslate}}",
+	"speedscope-profile-previews-label": "Label for the user preference which enables profile previews.",
+	"speedscope-profile-previews-help": "Help text for the user preference which enables profile previews.",
+	"speedscope-parser-report-label": "Label displayed in the parser report if the preview was profiled.",
+	"speedscope-parser-report-link-text": "Text of the link in the parser report that leads to the speedscope profile viewer.",
+	"speedscope-editpage-profile-preview-label": "Label of the checkbox that can be ticked to generate a speedscope flamegraph for the preview.",
+	"speedscope-editpage-profile-preview-title": "Title of the checkbox that can be ticked to generate a speedscope flamegraph for the preview.",
+	"speedscope-editpage-profile-notice": "Notice displayed when profiling a preview. $1 the URL for the profile viewer for the profile."
 }

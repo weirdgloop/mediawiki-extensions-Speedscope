@@ -7,6 +7,7 @@ use MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Language\RawMessage;
 use MediaWikiIntegrationTestCase;
 use Psr\Log\LoggerInterface;
@@ -40,6 +41,12 @@ class ExcimerSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 		] );
 	}
 
+	protected function tearDown(): void {
+		parent::tearDown();
+		putenv( 'SPEEDSCOPE_FORCE_PROFILE=0' );
+		DeferredUpdates::clearPendingUpdates();
+	}
+
 	private function forceProfile( string $param = 'forceprofile' ): ScopedCallback {
 		// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 		$_GET[$param] = 1;
@@ -51,18 +58,18 @@ class ExcimerSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 
 	public function testForcedViaEnv() {
 		putenv( 'SPEEDSCOPE_FORCE_PROFILE=1' );
-		$this->assertTrue( $this->newProfiler()->isForced() );
+		$this->assertSame( SpeedscopeProfile::CAUSE_FORCED_ENV, $this->newProfiler()->isForced() );
 	}
 
 	public function testForcedViaParam() {
 		$this->overrideConfigValue( SpeedscopeConfigNames::FORCED_PARAM, 'testprofile' );
 		$sc = $this->forceProfile( 'testprofile' );
 
-		$this->assertTrue( $this->newProfiler()->isForced() );
+		$this->assertSame( SpeedscopeProfile::CAUSE_FORCED_URL, $this->newProfiler()->isForced() );
 	}
 
 	public function testNotForcedByDefault() {
-		$this->assertFalse( $this->newProfiler()->isForced() );
+		$this->assertNull( $this->newProfiler()->isForced() );
 	}
 
 	public function testCreateForcedProfile() {
@@ -73,6 +80,20 @@ class ExcimerSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 		$profile = $profiler->getProfile();
 		$this->assertNotNull( $profile );
 		$this->assertTrue( $profile->isForced() );
+		$this->assertEquals( SpeedscopeProfile::CAUSE_FORCED_URL, $profile->getCause() );
+	}
+
+	public function testCreateSampledProfile() {
+		$this->overrideConfigValues( [
+			SpeedscopeConfigNames::SAMPLING_RATES => [ 'test' => 1 ],
+		] );
+		$profiler = $this->newProfiler();
+		$profiler->init();
+
+		$profile = $profiler->getProfile();
+		$this->assertNotNull( $profile );
+		$this->assertFalse( $profile->isForced() );
+		$this->assertEquals( SpeedscopeProfile::CAUSE_SAMPLE, $profile->getCause() );
 	}
 
 	public function testShouldSampleRequest_True() {
@@ -134,6 +155,21 @@ class ExcimerSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 		$this->setLogger( 'Speedscope', $logger );
 
 		$this->runDeferredUpdates();
+	}
+
+	public function testStopRecording() {
+		$sc = $this->forceProfile();
+		$sc2 = DeferredUpdates::preventOpportunisticUpdates();
+		$profiler = $this->newProfiler();
+		$profiler->forceDeferredUpdate = true;
+		$profiler->init();
+
+		$this->assertFalse( $profiler->stopped );
+		$profiler->stopRecording();
+		$this->assertTrue( $profiler->stopped );
+		$profiler->stopRecording();
+		$this->assertTrue( $profiler->stopped );
+		DeferredUpdates::clearPendingUpdates();
 	}
 
 	private function mockProfileLogger( StatusValue $statusValue ): void {

@@ -9,6 +9,17 @@ use MediaWiki\Parser\ParserOutput;
  */
 class SpeedscopeProfile {
 
+	public const CAUSE_FORCED_ENV = 'forced_env';
+	public const CAUSE_FORCED_URL = 'forced_url';
+	public const CAUSE_FORCED_PREVIEW = 'preview';
+	public const CAUSE_SAMPLE = 'sample';
+
+	private const FORCED_CAUSES = [
+		self::CAUSE_FORCED_ENV,
+		self::CAUSE_FORCED_URL,
+		self::CAUSE_FORCED_PREVIEW,
+	];
+
 	/** @var array<string, mixed>|null */
 	private ?array $data = null;
 	/** @see ParserOutput::getLimitReportJSData() */
@@ -18,14 +29,21 @@ class SpeedscopeProfile {
 
 	/**
 	 * @param string $environment The environment of the request, e.g. `prod` or `dev`
-	 * @param bool $forced Whether this profile was forced using the URL parameter or environment variable
+	 * @param string $cause The cause of this profile
 	 * @param string $id The randomly generated ID of this profile
 	 */
 	public function __construct(
 		private readonly string $environment,
-		private readonly bool $forced,
+		private readonly string $cause,
 		private readonly string $id,
 	) {
+	}
+
+	/**
+	 * @return string One of the CAUSE_... constants
+	 */
+	public function getCause(): string {
+		return $this->cause;
 	}
 
 	/**
@@ -52,10 +70,10 @@ class SpeedscopeProfile {
 	}
 
 	/**
-	 * @return bool Whether this profile was forced using the URL parameter or environment variable
+	 * @return bool Whether this profile was forced using the URL parameter, environment variable or preference
 	 */
 	public function isForced(): bool {
-		return $this->forced;
+		return in_array( $this->cause, self::FORCED_CAUSES, true );
 	}
 
 	/**
