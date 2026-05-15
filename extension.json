@@ -79,6 +79,8 @@
 	],
 	"Hooks": {
 		"BeforePageDisplay": "main",
+		"EditPage::importFormData": "profile-previews",
+		"EditPageBeforeEditButtons": "profile-previews",
 		"EditPageGetCheckboxesDefinition": "profile-previews",
 		"GetPreferences": "profile-previews",
 		"OutputPageParserOutput": "main",
