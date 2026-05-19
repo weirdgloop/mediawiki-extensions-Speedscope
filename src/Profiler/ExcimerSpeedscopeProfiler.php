@@ -109,10 +109,10 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 			$logger->debug( 'Successfully logged speedscope profile.' );
 		} else {
 			foreach ( $status->getMessages( 'warning' ) as $warning ) {
-				$logger->warning( wfMessage( $warning )->text() );
+				$logger->warning( wfMessage( $warning )->inLanguage( 'en' )->text() );
 			}
 			foreach ( $status->getMessages( 'error' ) as $error ) {
-				$logger->error( wfMessage( $error )->text() );
+				$logger->error( wfMessage( $error )->inLanguage( 'en' )->text() );
 			}
 		}
 	}
