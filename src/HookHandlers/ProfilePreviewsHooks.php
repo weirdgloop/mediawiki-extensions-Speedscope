@@ -68,7 +68,6 @@ class ProfilePreviewsHooks implements
 				$editor->getContext()->msg( 'speedscope-editpage-profile-link-label' )->text(),
 			),
 		) )->parse(), 'mw-speedscope-profile-notice' ) );
-		$editor->getContext()->getOutput()->addModules( 'ext.speedscope.edit' );
 	}
 
 	/** @inheritDoc */
@@ -89,6 +88,10 @@ class ProfilePreviewsHooks implements
 			'formNoValidate' => true,
 			'title' => $editpage->getContext()->msg( 'speedscope-editpage-profile-preview-title' )->text(),
 		] );
+
+		if ( $this->userOptionsLookup->getOption( $editpage->getContext()->getUser(), 'uselivepreview' ) ) {
+			$editpage->getContext()->getOutput()->addModules( 'ext.speedscope.edit' );
+		}
 	}
 
 	/** @inheritDoc */
@@ -130,6 +133,10 @@ class ProfilePreviewsHooks implements
 				ProfileHooks::sendProfileHeader();
 			}
 			// @codeCoverageIgnoreEnd
+		}
+		if ( $parser->getOptions()->getRenderReason() === 'api-parse' ) {
+			// Add a JS config var for the live preview script
+			$parser->getOutput()->setJsConfigVar( 'speedscopeProfileUrl', $url );
 		}
 	}
 

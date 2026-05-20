@@ -118,10 +118,16 @@
 		"ext.speedscope.edit": {
 			"localBasePath": "resources/ext.speedscope.edit",
 			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
-			"dependencies": [],
+			"dependencies": [
+				"mediawiki.jqueryMsg"
+			],
 			"styles": [],
 			"packageFiles": [
-				"fixLivePreview.js"
+				"livePreview.js"
+			],
+			"messages": [
+				"speedscope-editpage-profile-notice",
+				"speedscope-editpage-profile-link-label"
 			]
 		}
 	},
