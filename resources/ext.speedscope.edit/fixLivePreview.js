@@ -1,6 +1,6 @@
+/* eslint-disable no-jquery/no-global-selector */
 $( () => {
-	// eslint-disable-next-line no-jquery/no-global-selector
-	$( '#wpPreview, #wpDiff' ).click( () => {
+	$( '#wpPreview, #wpDiff' ).on( 'click', () => {
 		$( '.mw-speedscope-profile-notice' ).remove();
 	} );
 } );
