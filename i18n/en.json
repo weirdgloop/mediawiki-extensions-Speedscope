@@ -15,7 +15,7 @@
 	"speedscope-log-error-request-failed": "Request failed: $1",
 	"speedscope-log-error-request-bad-status": "Request returned bad status code $1. Response: $2",
 	"speedscope-profile-previews-label": "Allow generating flamegraphs for previews",
-	"speedscope-profile-previews-help": "Add a checkbox to the editing interface that allows generating a flamegraph for a page preview.",
+	"speedscope-profile-previews-help": "Add a button to the editing interface that allows generating a flamegraph for a page preview.",
 	"speedscope-parser-report-label": "Speedscope profile",
 	"speedscope-parser-report-link-text": "View",
 	"speedscope-editpage-profile-preview-label": "Generate flamegraph",
