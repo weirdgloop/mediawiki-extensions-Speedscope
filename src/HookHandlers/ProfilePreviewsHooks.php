@@ -67,7 +67,7 @@ class ProfilePreviewsHooks implements
 				],
 				$editor->getContext()->msg( 'speedscope-editpage-profile-link-label' )->text(),
 			),
-		) ) ) );
+		) )->parse() ) );
 	}
 
 	/** @inheritDoc */
