@@ -9,12 +9,10 @@ use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Hook\EditPage__importFormDataHook;
 use MediaWiki\Hook\EditPageBeforeEditButtonsHook;
-use MediaWiki\Hook\EditPageGetCheckboxesDefinitionHook;
 use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\Hook\ParserLimitReportFormatHook;
 use MediaWiki\Hook\ParserLimitReportPrepareHook;
 use MediaWiki\Html\Html;
-use MediaWiki\Linker\Linker;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\Options\UserOptionsLookup;
 use OOUI\ButtonInputWidget;
@@ -22,7 +20,6 @@ use OOUI\ButtonInputWidget;
 class ProfilePreviewsHooks implements
 	EditPage__importFormDataHook,
 	EditPageBeforeEditButtonsHook,
-	EditPageGetCheckboxesDefinitionHook,
 	GetPreferencesHook,
 	ParserBeforeInternalParseHook,
 	ParserLimitReportFormatHook,
@@ -41,7 +38,7 @@ class ProfilePreviewsHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onEditPage__importFormData( $editpage, $request ) {
+	public function onEditPage__importFormData( $editpage, $request ): void {
 		if ( $request->getCheck( 'wpProfilePreview' ) ) {
 			$editpage->preview = true;
 			$editpage->save = false;
@@ -49,7 +46,7 @@ class ProfilePreviewsHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onEditPageBeforeEditButtons( $editpage, &$buttons, &$tabindex ) {
+	public function onEditPageBeforeEditButtons( $editpage, &$buttons, &$tabindex ): void {
 		if ( !$this->userOptionsLookup->getBoolOption( $editpage->getContext()->getUser(), self::PREFERENCE_NAME ) ) {
 			return;
 		}
@@ -77,20 +74,6 @@ class ProfilePreviewsHooks implements
 		}
 
 		$buttons = $newButtons;
-	}
-
-	/** @inheritDoc */
-	public function onEditPageGetCheckboxesDefinition( $editpage, &$checkboxes ): void {
-		if ( !$this->userOptionsLookup->getBoolOption( $editpage->getContext()->getUser(), self::PREFERENCE_NAME ) ) {
-			return;
-		}
-//		$checkboxes['wpProfilePreview'] = [
-//			'id' => 'wpProfilePreview',
-//			'default' => $editpage->getContext()->getRequest()->getCheck( 'wpProfilePreview' ),
-//			'title-message' => 'speedscope-editpage-profile-preview-title',
-//			'label-message' => 'speedscope-editpage-profile-preview-label',
-//		];
-		$editpage->getContext()->getOutput()->addModules( 'ext.speedscope.edit' );
 	}
 
 	/** @inheritDoc */

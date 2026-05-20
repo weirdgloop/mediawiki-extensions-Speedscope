@@ -81,7 +81,6 @@
 		"BeforePageDisplay": "main",
 		"EditPage::importFormData": "profile-previews",
 		"EditPageBeforeEditButtons": "profile-previews",
-		"EditPageGetCheckboxesDefinition": "profile-previews",
 		"GetPreferences": "profile-previews",
 		"OutputPageParserOutput": "main",
 		"ParserBeforeInternalParse": [
@@ -113,15 +112,6 @@
 				"speedscope-notification-link-view",
 				"speedscope-notification-link-json",
 				"speedscope-notification-link-metadata"
-			]
-		},
-		"ext.speedscope.edit": {
-			"localBasePath": "resources/ext.speedscope.edit",
-			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
-			"dependencies": [],
-			"styles": [],
-			"packageFiles": [
-				"fixLivePreview.js"
 			]
 		}
 	},
