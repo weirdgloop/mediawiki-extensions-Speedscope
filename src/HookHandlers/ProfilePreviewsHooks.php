@@ -87,10 +87,6 @@ class ProfilePreviewsHooks implements
 		if ( !RequestContext::getMain()->getRequest()->getCheck( 'wpProfilePreview' ) ) {
 			return;
 		}
-		$user = $parser->getUserIdentity();
-		if ( !$this->userOptionsLookup->getBoolOption( $user, self::PREFERENCE_NAME ) ) {
-			return;
-		}
 		$id = $this->profiler->getProfile()?->getId() ?? bin2hex( random_bytes( 16 ) );
 		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
 			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
