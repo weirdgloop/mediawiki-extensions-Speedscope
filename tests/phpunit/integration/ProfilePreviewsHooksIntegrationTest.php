@@ -74,11 +74,6 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
 		$limitReport = EditPage::getPreviewLimitReport( $parserOutput );
 		$this->assertStringContainsString( 'http://localhost:3000/view/', $limitReport );
-
-		$this->assertEquals(
-			'speedscope-editpage-profile-notice',
-			$parserOutput->getWarningMsgs()[0]->getKey(),
-		);
 	}
 
 }

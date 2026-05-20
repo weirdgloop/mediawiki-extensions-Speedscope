@@ -8,17 +8,20 @@ use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Hook\EditPage__importFormDataHook;
+use MediaWiki\Hook\EditPage__showEditForm_initialHook;
 use MediaWiki\Hook\EditPageBeforeEditButtonsHook;
 use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\Hook\ParserLimitReportFormatHook;
 use MediaWiki\Hook\ParserLimitReportPrepareHook;
 use MediaWiki\Html\Html;
+use MediaWiki\Message\Message;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\Options\UserOptionsLookup;
 use OOUI\ButtonInputWidget;
 
 class ProfilePreviewsHooks implements
 	EditPage__importFormDataHook,
+	EditPage__showEditForm_initialHook,
 	EditPageBeforeEditButtonsHook,
 	GetPreferencesHook,
 	ParserBeforeInternalParseHook,
@@ -43,6 +46,28 @@ class ProfilePreviewsHooks implements
 			$editpage->preview = true;
 			$editpage->save = false;
 		}
+	}
+
+	/** @inheritDoc */
+	public function onEditPage__showEditForm_initial( $editor, $out ): void {
+		if ( $this->profiler->getProfile()?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
+			return;
+		}
+		$id = $this->profiler->getProfile()->getId();
+		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
+			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
+		$url = "$publicEndpoint/view/$id";
+		$out->addHTML( Html::noticeBox( $editor->getContext()->msg(
+			'speedscope-editpage-profile-notice',
+			Message::rawParam( Html::element(
+				'a',
+				[
+					'href' => $url,
+					'target' => '_blank',
+				],
+				$editor->getContext()->msg( 'speedscope-editpage-profile-link-label' )->text(),
+			),
+		) ) ) );
 	}
 
 	/** @inheritDoc */
@@ -93,12 +118,6 @@ class ProfilePreviewsHooks implements
 		$url = "$publicEndpoint/view/$id";
 		$parser->getOutput()->setLimitReportData( self::LIMIT_REPORT_KEY, $url );
 		$parser->getOutput()->setExtensionData( self::EXTENSION_DATA_KEY, true );
-		// TODO insert a raw parameter with a link that opens in a new tab once we drop support for 1.45
-		// (1.45 and below don't support raw parameters in warning messages emitted during previews)
-		$parser->getOutput()->addWarningMsg(
-			'speedscope-editpage-profile-notice',
-			$url,
-		);
 		if ( !$this->profiler->getProfile() ) {
 			$this->profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW, $id );
 			$this->profiler->getProfile()?->setName( $parser->msg(

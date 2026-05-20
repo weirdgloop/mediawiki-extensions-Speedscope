@@ -79,6 +79,7 @@
 	],
 	"Hooks": {
 		"BeforePageDisplay": "main",
+		"EditPage::showEditForm:initial": "profile-previews",
 		"EditPage::importFormData": "profile-previews",
 		"EditPageBeforeEditButtons": "profile-previews",
 		"GetPreferences": "profile-previews",
