@@ -126,6 +126,7 @@
 				"livePreview.js"
 			],
 			"messages": [
+				"previewnote",
 				"speedscope-editpage-profile-notice",
 				"speedscope-editpage-profile-link-label"
 			]

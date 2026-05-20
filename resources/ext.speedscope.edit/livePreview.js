@@ -9,6 +9,7 @@ $( () => {
 		const promise = require( 'mediawiki.page.preview' ).doPreview( {
 			isLivePreview: true,
 			previewHeader: mw.message( 'preview' ).escaped(),
+			previewNote: mw.message( 'previewnote' ).parseDom(),
 			createSpinner: true,
 			parseParams: {
 				wpProfilePreview: 1
