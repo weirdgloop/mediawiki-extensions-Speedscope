@@ -50,7 +50,7 @@ class ProfilePreviewsHooks implements
 		if ( !$this->userOptionsLookup->getBoolOption( $editpage->getContext()->getUser(), self::PREFERENCE_NAME ) ) {
 			return;
 		}
-		$button = new ButtonInputWidget( [
+		$buttons['profilePreview'] = new ButtonInputWidget( [
 			'name' => 'wpProfilePreview',
 			'tabIndex' => ++$tabindex,
 			'id' => 'wpProfilePreview',
@@ -63,17 +63,6 @@ class ProfilePreviewsHooks implements
 			'formNoValidate' => true,
 			'title' => $editpage->getContext()->msg( 'speedscope-editpage-profile-preview-title' )->text(),
 		] );
-
-		$newButtons = [];
-		foreach ( $buttons as $key => $value ) {
-			$newButtons[$key] = $value;
-
-			if ( $key === 'preview' ) {
-				$newButtons['profilePreview'] = $button;
-			}
-		}
-
-		$buttons = $newButtons;
 	}
 
 	/** @inheritDoc */
