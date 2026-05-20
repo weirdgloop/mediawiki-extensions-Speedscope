@@ -79,7 +79,9 @@
 	],
 	"Hooks": {
 		"BeforePageDisplay": "main",
-		"EditPageGetCheckboxesDefinition": "profile-previews",
+		"EditPage::showEditForm:initial": "profile-previews",
+		"EditPage::importFormData": "profile-previews",
+		"EditPageBeforeEditButtons": "profile-previews",
 		"GetPreferences": "profile-previews",
 		"OutputPageParserOutput": "main",
 		"ParserBeforeInternalParse": [
@@ -116,10 +118,17 @@
 		"ext.speedscope.edit": {
 			"localBasePath": "resources/ext.speedscope.edit",
 			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
-			"dependencies": [],
+			"dependencies": [
+				"mediawiki.jqueryMsg"
+			],
 			"styles": [],
 			"packageFiles": [
-				"fixLivePreview.js"
+				"livePreview.js"
+			],
+			"messages": [
+				"previewnote",
+				"speedscope-editpage-profile-notice",
+				"speedscope-editpage-profile-link-label"
 			]
 		}
 	},

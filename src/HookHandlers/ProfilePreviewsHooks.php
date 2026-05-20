@@ -7,16 +7,22 @@ use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
-use MediaWiki\Hook\EditPageGetCheckboxesDefinitionHook;
+use MediaWiki\Hook\EditPage__importFormDataHook;
+use MediaWiki\Hook\EditPage__showEditForm_initialHook;
+use MediaWiki\Hook\EditPageBeforeEditButtonsHook;
 use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\Hook\ParserLimitReportFormatHook;
 use MediaWiki\Hook\ParserLimitReportPrepareHook;
 use MediaWiki\Html\Html;
+use MediaWiki\Message\Message;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\Options\UserOptionsLookup;
+use OOUI\ButtonInputWidget;
 
 class ProfilePreviewsHooks implements
-	EditPageGetCheckboxesDefinitionHook,
+	EditPage__importFormDataHook,
+	EditPage__showEditForm_initialHook,
+	EditPageBeforeEditButtonsHook,
 	GetPreferencesHook,
 	ParserBeforeInternalParseHook,
 	ParserLimitReportFormatHook,
@@ -35,17 +41,57 @@ class ProfilePreviewsHooks implements
 	}
 
 	/** @inheritDoc */
-	public function onEditPageGetCheckboxesDefinition( $editpage, &$checkboxes ): void {
+	public function onEditPage__importFormData( $editpage, $request ): void {
+		if ( $request->getCheck( 'wpProfilePreview' ) ) {
+			$editpage->preview = true;
+			$editpage->save = false;
+		}
+	}
+
+	/** @inheritDoc */
+	public function onEditPage__showEditForm_initial( $editor, $out ): void {
+		if ( $this->profiler->getProfile()?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
+			return;
+		}
+		$id = $this->profiler->getProfile()->getId();
+		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
+			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
+		$url = "$publicEndpoint/view/$id";
+		$out->addHTML( Html::noticeBox( $editor->getContext()->msg(
+			'speedscope-editpage-profile-notice',
+			Message::rawParam( Html::element(
+				'a',
+				[
+					'href' => $url,
+					'target' => '_blank',
+				],
+				$editor->getContext()->msg( 'speedscope-editpage-profile-link-label' )->text(),
+			),
+		) )->parse(), 'mw-speedscope-profile-notice' ) );
+	}
+
+	/** @inheritDoc */
+	public function onEditPageBeforeEditButtons( $editpage, &$buttons, &$tabindex ): void {
 		if ( !$this->userOptionsLookup->getBoolOption( $editpage->getContext()->getUser(), self::PREFERENCE_NAME ) ) {
 			return;
 		}
-		$checkboxes['wpProfilePreview'] = [
+		$buttons['profilePreview'] = new ButtonInputWidget( [
+			'name' => 'wpProfilePreview',
+			'tabIndex' => ++$tabindex,
 			'id' => 'wpProfilePreview',
-			'default' => $editpage->getContext()->getRequest()->getCheck( 'wpProfilePreview' ),
-			'title-message' => 'speedscope-editpage-profile-preview-title',
-			'label-message' => 'speedscope-editpage-profile-preview-label',
-		];
-		$editpage->getContext()->getOutput()->addModules( 'ext.speedscope.edit' );
+			'inputId' => 'wpProfilePreview',
+			'useInputTag' => true,
+			'label' => $editpage->getContext()->msg( 'speedscope-editpage-profile-preview-label' )->text(),
+			'infusable' => true,
+			'type' => 'submit',
+			// Allow previewing even when the form is in invalid state (T343585)
+			'formNoValidate' => true,
+			'title' => $editpage->getContext()->msg( 'speedscope-editpage-profile-preview-title' )->text(),
+		] );
+
+		if ( $this->userOptionsLookup->getOption( $editpage->getContext()->getUser(), 'uselivepreview' ) ) {
+			$editpage->getContext()->getOutput()->addModules( 'ext.speedscope.edit' );
+		}
 	}
 
 	/** @inheritDoc */
@@ -70,22 +116,12 @@ class ProfilePreviewsHooks implements
 		if ( !RequestContext::getMain()->getRequest()->getCheck( 'wpProfilePreview' ) ) {
 			return;
 		}
-		$user = $parser->getUserIdentity();
-		if ( !$this->userOptionsLookup->getBoolOption( $user, self::PREFERENCE_NAME ) ) {
-			return;
-		}
 		$id = $this->profiler->getProfile()?->getId() ?? bin2hex( random_bytes( 16 ) );
 		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
 			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
 		$url = "$publicEndpoint/view/$id";
 		$parser->getOutput()->setLimitReportData( self::LIMIT_REPORT_KEY, $url );
 		$parser->getOutput()->setExtensionData( self::EXTENSION_DATA_KEY, true );
-		// TODO insert a raw parameter with a link that opens in a new tab once we drop support for 1.45
-		// (1.45 and below don't support raw parameters in warning messages emitted during previews)
-		$parser->getOutput()->addWarningMsg(
-			'speedscope-editpage-profile-notice',
-			$url,
-		);
 		if ( !$this->profiler->getProfile() ) {
 			$this->profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW, $id );
 			$this->profiler->getProfile()?->setName( $parser->msg(
@@ -97,6 +133,10 @@ class ProfilePreviewsHooks implements
 				ProfileHooks::sendProfileHeader();
 			}
 			// @codeCoverageIgnoreEnd
+		}
+		if ( $parser->getOptions()->getRenderReason() === 'api-parse' ) {
+			// Add a JS config var for the live preview script
+			$parser->getOutput()->setJsConfigVar( 'speedscopeProfileUrl', $url );
 		}
 	}
 

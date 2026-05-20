@@ -81,10 +81,10 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 		RequestContext::getMain()->getRequest()->setVal( 'wpProfilePreview', true );
 		$parser = $this->createNoOpMock(
 			Parser::class,
-			[ 'getOptions', 'getOutput', 'getPage', 'getUserIdentity', 'msg' ]
+			[ 'getOptions', 'getOutput', 'getPage', 'msg' ]
 		);
 		$parserOptions = $this->createMock( ParserOptions::class );
-		$parserOptions->expects( $this->once() )->method( 'getRenderReason' )->willReturn( 'page-preview' );
+		$parserOptions->expects( $this->atLeastOnce() )->method( 'getRenderReason' )->willReturn( 'page-preview' );
 		$parser->method( 'getOptions' )->willReturn( $parserOptions );
 		$parserOutput = $this->createMock( ParserOutput::class );
 		$parserOutput->expects( $this->once() )
@@ -97,9 +97,7 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 			->method( 'setExtensionData' )
 			->with( ProfilePreviewsHooks::EXTENSION_DATA_KEY, true );
 		$parser->expects( $this->atLeastOnce() )->method( 'getOutput' )->willReturn( $parserOutput );
-		$user = $this->createNoOpMock( User::class );
 		$parser->method( 'getPage' )->willReturn( PageIdentityValue::localReference( 0, __METHOD__ ) );
-		$parser->expects( $this->atLeastOnce() )->method( 'getUserIdentity' )->willReturn( $user );
 		$parser->method( 'msg' )->willReturn( $this->createMock( Message::class ) );
 
 		$text = '';
@@ -118,11 +116,11 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 				return $createdProfile ? $profile : null;
 			} );
 
-		$this->newHooks(
-			profiler: $profiler,
-			user: $user,
-			userOptionEnabled: true
-		)->onParserBeforeInternalParse( $parser, $text, $this->createNoOpMock( StripState::class ) );
+		$this->newHooks( profiler: $profiler )->onParserBeforeInternalParse(
+			$parser,
+			$text,
+			$this->createNoOpMock( StripState::class )
+		);
 	}
 
 }

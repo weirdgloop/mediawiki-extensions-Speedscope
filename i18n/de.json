@@ -16,7 +16,7 @@
 	"speedscope-log-error-request-failed": "Anfrage fehlgeschlagen: $1",
 	"speedscope-log-error-request-bad-status": "Fehlerhafte Anfrage mit Statuscode „$1“. Antwort: $2",
 	"speedscope-profile-previews-label": "Vorschauen analysieren",
-	"speedscope-profile-previews-help": "Alle Vorschauen analysieren und im Parser-Bericht zur Speedscope‐Übersicht verlinken",
+	"speedscope-profile-previews-help": "Fügt der Bearbeitungsoberfläche eine Schaltfläche hinzu, mit der eine Laufzeitanalyse für die Seitenvorschau generiert werden kann.",
 	"speedscope-parser-report-label": "Speedscope‐Analyse",
 	"speedscope-parser-report-link-text": "Ansehen"
 }
