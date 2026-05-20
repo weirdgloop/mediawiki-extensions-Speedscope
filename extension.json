@@ -114,6 +114,15 @@
 				"speedscope-notification-link-json",
 				"speedscope-notification-link-metadata"
 			]
+		},
+		"ext.speedscope.edit": {
+			"localBasePath": "resources/ext.speedscope.edit",
+			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
+			"dependencies": [],
+			"styles": [],
+			"packageFiles": [
+				"fixLivePreview.js"
+			]
 		}
 	},
 	"ServiceWiringFiles": [
