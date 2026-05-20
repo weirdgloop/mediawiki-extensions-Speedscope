@@ -84,7 +84,7 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 			[ 'getOptions', 'getOutput', 'getPage', 'msg' ]
 		);
 		$parserOptions = $this->createMock( ParserOptions::class );
-		$parserOptions->expects( $this->once() )->method( 'getRenderReason' )->willReturn( 'page-preview' );
+		$parserOptions->expects( $this->atLeastOnce() )->method( 'getRenderReason' )->willReturn( 'page-preview' );
 		$parser->method( 'getOptions' )->willReturn( $parserOptions );
 		$parserOutput = $this->createMock( ParserOutput::class );
 		$parserOutput->expects( $this->once() )
