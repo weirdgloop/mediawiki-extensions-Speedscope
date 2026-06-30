@@ -25,6 +25,21 @@ class ProfileHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
+	public function testSendProfileHeader_PrintsProfileId() {
+		$this->setService( 'Speedscope.Profile', static fn () => new SpeedscopeProfile(
+			'test',
+			SpeedscopeProfile::CAUSE_FORCED_ENV,
+			'test-id'
+		) );
+		ob_start();
+		ProfileHooks::sendProfileHeader();
+		$output = ob_get_clean();
+		$this->assertEquals(
+			"[Speedscope] Profile ID: test-id\n\n",
+			$output
+		);
+	}
+
 	public function testSendProfileHeader_NoProfile() {
 		$this->setService( 'Speedscope.Profile', static fn () => null );
 		ProfileHooks::sendProfileHeader();
