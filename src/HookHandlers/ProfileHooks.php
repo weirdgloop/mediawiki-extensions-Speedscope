@@ -66,7 +66,7 @@ class ProfileHooks implements
 	}
 
 	/**
-	 * Send the profile ID via the header.
+	 * Send the profile ID via the header, or print it in CLI contexts.
 	 * This is called as an extension function.
 	 */
 	public static function sendProfileHeader(): void {
@@ -75,6 +75,11 @@ class ProfileHooks implements
 		if ( !$profile ) {
 			return;
 		}
+
+		if ( $profile->getCause() === SpeedscopeProfile::CAUSE_FORCED_ENV && MW_ENTRY_POINT === 'cli' ) {
+			print "[Speedscope] Profile ID: {$profile->getId()}\n\n";
+		}
+
 		RequestContext::getMain()->getRequest()->response()->header( "Profile-Id: {$profile->getId()}" );
 	}
 
