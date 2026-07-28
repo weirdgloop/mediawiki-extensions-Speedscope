@@ -4,9 +4,11 @@ namespace MediaWiki\Extension\Speedscope\HookHandlers;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
-use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\Parser\ParserSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWiki\Hook\EditPage__importFormDataHook;
 use MediaWiki\Hook\EditPage__showEditForm_initialHook;
 use MediaWiki\Hook\EditPageBeforeEditButtonsHook;
@@ -35,7 +37,7 @@ class ProfilePreviewsHooks implements
 
 	public function __construct(
 		private readonly Config $config,
-		private readonly ISpeedscopeProfiler $profiler,
+		private readonly SpeedscopeProfilerManager $profilerManager,
 		private readonly UserOptionsLookup $userOptionsLookup,
 	) {
 	}
@@ -50,10 +52,11 @@ class ProfilePreviewsHooks implements
 
 	/** @inheritDoc */
 	public function onEditPage__showEditForm_initial( $editor, $out ): void {
-		if ( $this->profiler->getProfile()?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
+		$profile = $this->profilerManager->getProfile();
+		if ( $profile?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
 			return;
 		}
-		$id = $this->profiler->getProfile()->getId();
+		$id = $profile->getId();
 		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
 			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
 		$url = "$publicEndpoint/view/$id";
@@ -116,24 +119,30 @@ class ProfilePreviewsHooks implements
 		if ( !RequestContext::getMain()->getRequest()->getCheck( 'wpProfilePreview' ) ) {
 			return;
 		}
-		$id = $this->profiler->getProfile()?->getId() ?? bin2hex( random_bytes( 16 ) );
+		$environment = $this->config->get( SpeedscopeConfigNames::ENVIRONMENT );
+		if ( !$this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
+			$profiler = new ParserSpeedscopeProfiler( $environment, $parser->getPage() );
+		} else {
+			$profiler = new ExcimerSpeedscopeProfiler( $environment );
+		}
+		$this->profilerManager->setProfiler( $profiler );
+		$profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW );
+		$profiler->getProfile()->setName( $parser->msg(
+			'speedscope-profile-name-preview',
+			(string)$parser->getPage(),
+		)->text() );
+		// @codeCoverageIgnoreStart
+		if ( !defined( 'MW_PHPUNIT_TEST' ) ) {
+			ProfileHooks::sendProfileHeader();
+		}
+		// @codeCoverageIgnoreEnd
+
 		$publicEndpoint = $this->config->get( SpeedscopeConfigNames::PUBLIC_ENDPOINT ) ??
 			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
-		$url = "$publicEndpoint/view/$id";
+		$url = "$publicEndpoint/view/{$profiler->getProfile()->getId()}";
+
 		$parser->getOutput()->setLimitReportData( self::LIMIT_REPORT_KEY, $url );
 		$parser->getOutput()->setExtensionData( self::EXTENSION_DATA_KEY, true );
-		if ( !$this->profiler->getProfile() ) {
-			$this->profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW, $id );
-			$this->profiler->getProfile()?->setName( $parser->msg(
-				'speedscope-profile-name-preview',
-				(string)$parser->getPage(),
-			)->text() );
-			// @codeCoverageIgnoreStart
-			if ( !defined( 'MW_PHPUNIT_TEST' ) ) {
-				ProfileHooks::sendProfileHeader();
-			}
-			// @codeCoverageIgnoreEnd
-		}
 		if ( $parser->getOptions()->getRenderReason() === 'api-parse' ) {
 			// Add a JS config var for the live preview script
 			$parser->getOutput()->setJsConfigVar( 'speedscopeProfileUrl', $url );
@@ -148,7 +157,8 @@ class ProfilePreviewsHooks implements
 		if ( !$isHTML || $key !== self::LIMIT_REPORT_KEY ) {
 			return;
 		}
-		if ( !$this->profiler->getProfile()?->isForced() ) {
+		$profile = $this->profilerManager->getProfile();
+		if ( !$profile?->isForced() ) {
 			return;
 		}
 
@@ -185,10 +195,10 @@ class ProfilePreviewsHooks implements
 			return;
 		}
 		$output->setExtensionData( self::EXTENSION_DATA_KEY, null );
-		$profile = $this->profiler->getProfile();
+		$profile = $this->profilerManager->getProfile();
 		if ( $profile?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
 			return;
 		}
-		$this->profiler->stopRecording();
+		$this->profilerManager->getProfiler()->stopRecording();
 	}
 }

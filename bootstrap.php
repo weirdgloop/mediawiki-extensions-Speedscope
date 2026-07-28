@@ -5,7 +5,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 require_once __DIR__ . '/src/Profiler/ISpeedscopeProfiler.php';
-require_once __DIR__ . '/src/Profiler/ExcimerSpeedscopeProfiler.php';
+require_once __DIR__ . '/src/Profiler/AbstractSpeedscopeProfiler.php';
+require_once __DIR__ . '/src/Profiler/Excimer/ExcimerSpeedscopeProfiler.php';
 require_once __DIR__ . '/src/SpeedscopeConfig.php';
 require_once __DIR__ . '/src/SpeedscopeConfigNames.php';
 require_once __DIR__ . '/src/SpeedscopeProfile.php';

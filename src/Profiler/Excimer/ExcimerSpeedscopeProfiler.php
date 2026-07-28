@@ -2,6 +2,7 @@
 
 namespace MediaWiki\Extension\Speedscope\Profiler;
 
+use Exception;
 use ExcimerProfiler;
 use LogicException;
 use MediaWiki\Deferred\DeferredUpdates;
@@ -13,22 +14,20 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
 /**
- * This class is used to initialize the profiler and store data before the service container is initialized.
+ * This class allows generating a speedscope profile using excimer.
+ * @see https://www.mediawiki.org/wiki/Excimer
  */
-class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
+class ExcimerSpeedscopeProfiler extends AbstractSpeedscopeProfiler {
 
 	private ExcimerProfiler $excimer;
-	private ?SpeedscopeProfile $profile = null;
 	private bool $stopped = false;
 	/** Currently only used in tests */
 	private bool $forceDeferredUpdate = false;
 
-	/**
-	 * Only for use by bootstrap.php!
-	 */
 	public function __construct(
-		private readonly SpeedscopeConfig $config,
+		private readonly SpeedscopeConfig $config
 	) {
+		parent::__construct( $config->getEnvironment() );
 	}
 
 	/**
@@ -57,13 +56,7 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 	 * speedscope service.
 	 * @inheritDoc
 	 */
-	public function recordProfile( string $cause, ?string $id = null ): void {
-		$this->profile = new SpeedscopeProfile(
-			environment: $this->config->getEnvironment(),
-			cause: $cause,
-			id: $id ?? bin2hex( random_bytes( 16 ) )
-		);
-
+	public function doRecordProfile(): void {
 		$this->excimer = new ExcimerProfiler();
 		$period = $this->profile->isForced() ? $this->config->getForcedPeriod() : $this->config->getSamplePeriod();
 		$this->excimer->setPeriod( $period );
@@ -77,6 +70,7 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		}
 	}
 
+	/** @inheritDoc */
 	public function stopRecording(): void {
 		if ( $this->stopped ) {
 			return;
@@ -104,18 +98,7 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 		/** @var SpeedscopeLogger $profileLogger */
 		$status = $profileLogger->log( $this->profile );
 
-		$logger = LoggerFactory::getInstance( 'Speedscope' );
-
-		if ( $status->isGood() ) {
-			$logger->debug( 'Successfully logged speedscope profile.' );
-		} else {
-			foreach ( $status->getMessages( 'warning' ) as $warning ) {
-				$logger->warning( wfMessage( $warning )->inLanguage( 'en' )->text() );
-			}
-			foreach ( $status->getMessages( 'error' ) as $error ) {
-				$logger->error( wfMessage( $error )->inLanguage( 'en' )->text() );
-			}
-		}
+		$this->logStatus( $status );
 
 		if ( !$this->profile->isForced() ) {
 			$statsdLogger = MediaWikiServices::getInstance()->getService( 'Speedscope.StatsdLogger' );
@@ -149,11 +132,6 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 			return SpeedscopeProfile::CAUSE_FORCED_ENV;
 		}
 		return null;
-	}
-
-	/** @inheritDoc */
-	public function getProfile(): ?SpeedscopeProfile {
-		return $this->profile;
 	}
 
 }
