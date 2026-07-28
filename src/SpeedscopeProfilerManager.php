@@ -3,7 +3,6 @@
 namespace MediaWiki\Extension\Speedscope;
 
 use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
-use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 
 class SpeedscopeProfilerManager {
 
@@ -11,7 +10,6 @@ class SpeedscopeProfilerManager {
 		private ISpeedscopeProfiler $profiler,
 	) {
 	}
-
 
 	public function getProfiler(): ISpeedscopeProfiler {
 		return $this->profiler;

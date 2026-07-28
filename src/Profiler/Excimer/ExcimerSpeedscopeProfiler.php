@@ -2,7 +2,6 @@
 
 namespace MediaWiki\Extension\Speedscope\Profiler;
 
-use Exception;
 use ExcimerProfiler;
 use LogicException;
 use MediaWiki\Deferred\DeferredUpdates;
