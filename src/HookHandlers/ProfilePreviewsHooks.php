@@ -6,6 +6,7 @@ use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\Profiler\Parser\ParserSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
@@ -120,10 +121,10 @@ class ProfilePreviewsHooks implements
 			return;
 		}
 		$environment = $this->config->get( SpeedscopeConfigNames::ENVIRONMENT );
-		if ( !$this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
+		if ( $this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
 			$profiler = new ParserSpeedscopeProfiler( $environment, $parser->getPage() );
 		} else {
-			$profiler = new ExcimerSpeedscopeProfiler( $environment );
+			$profiler = new ExcimerSpeedscopeProfiler( SpeedscopeConfig::newFromConfig( $this->config ) );
 		}
 		$this->profilerManager->setProfiler( $profiler );
 		$profiler->recordProfile( SpeedscopeProfile::CAUSE_FORCED_PREVIEW );
