@@ -120,6 +120,9 @@ class ProfilePreviewsHooks implements
 		if ( !RequestContext::getMain()->getRequest()->getCheck( 'wpProfilePreview' ) ) {
 			return;
 		}
+		if ( $this->profilerManager->getProfile()?->getCause() === SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
+			return;
+		}
 		$environment = $this->config->get( SpeedscopeConfigNames::ENVIRONMENT );
 		if ( $this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
 			$profiler = new ParserSpeedscopeProfiler( $environment, $parser->getPage() );
