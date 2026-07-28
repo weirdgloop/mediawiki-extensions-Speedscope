@@ -125,7 +125,7 @@ class ProfilePreviewsHooks implements
 		}
 		$environment = $this->config->get( SpeedscopeConfigNames::ENVIRONMENT );
 		if ( $this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
-			$profiler = new ParserSpeedscopeProfiler( $environment, $parser->getPage() );
+			$profiler = new ParserSpeedscopeProfiler( $environment, $parser->getPage(), $parser->getTargetLanguage() );
 		} else {
 			$profiler = new ExcimerSpeedscopeProfiler( SpeedscopeConfig::newFromConfig( $this->config ) );
 		}

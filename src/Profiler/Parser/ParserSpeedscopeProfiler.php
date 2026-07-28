@@ -4,6 +4,7 @@ namespace MediaWiki\Extension\Speedscope\Profiler\Parser;
 
 use MediaWiki\Extension\Speedscope\Profiler\AbstractSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
+use MediaWiki\Language\Language;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\PageReference;
@@ -20,7 +21,8 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 
 	public function __construct(
 		string $environment,
-		private ?PageReference $page
+		private ?PageReference $page,
+		private readonly Language $language,
 	) {
 		parent::__construct( $environment );
 	}
@@ -65,12 +67,19 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 			return;
 		}
 		$frameName = match ( $type ) {
-			'template' => 'Template:' . $bits['title']->getFirstChild(),
+			'template' => $this->getTemplateFrameName( $bits['title']->getFirstChild() ),
 			'tplarg' => '{{{' . $bits['title']->getFirstChild() . '}}}',
 			'ext' => '<' . $bits['name']->getFirstChild() . '>',
 			default => $type,
 		};
 		$this->data->startFrame( $frameName );
+	}
+
+	private function getTemplateFrameName( string $templateName ): string {
+		if ( !str_starts_with( $templateName, '#' ) ) {
+			$templateName = $this->language->getNsText( NS_TEMPLATE ) . ":$templateName";
+		}
+		return '{{' . $templateName . '}}';
 	}
 
 	/** @inheritDoc */
