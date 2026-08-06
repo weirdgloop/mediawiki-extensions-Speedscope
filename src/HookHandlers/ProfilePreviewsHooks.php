@@ -130,6 +130,7 @@ class ProfilePreviewsHooks implements
 			),
 		] );
 		$context->getOutput()->addModules( 'ext.speedscope.edit' );
+		$context->getOutput()->addModuleStyles( 'ext.speedscope.edit.styles' );
 	}
 
 	/** @inheritDoc */

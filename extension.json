@@ -130,9 +130,6 @@
 				"mediawiki.jqueryMsg",
 				"oojs-ui-core"
 			],
-			"styles": [
-				"edit.less"
-			],
 			"packageFiles": [
 				"edit.js"
 			],
@@ -140,6 +137,13 @@
 				"previewnote",
 				"speedscope-editpage-profile-notice",
 				"speedscope-editpage-profile-link-label"
+			]
+		},
+		"ext.speedscope.edit.styles": {
+			"localBasePath": "resources/ext.speedscope.edit.styles",
+			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit.styles",
+			"styles": [
+				"edit.less"
 			]
 		}
 	},
