@@ -21,6 +21,7 @@ use MediaWiki\Message\Message;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\User\Options\UserOptionsLookup;
 use OOUI\ButtonInputWidget;
+use OOUI\DropdownInputWidget;
 
 class ProfilePreviewsHooks implements
 	EditPage__importFormDataHook,
@@ -79,23 +80,56 @@ class ProfilePreviewsHooks implements
 		if ( !$this->userOptionsLookup->getBoolOption( $editpage->getContext()->getUser(), self::PREFERENCE_NAME ) ) {
 			return;
 		}
-		$buttons['profilePreview'] = new ButtonInputWidget( [
+		$context = $editpage->getContext();
+		$button = new ButtonInputWidget( [
 			'name' => 'wpProfilePreview',
 			'tabIndex' => ++$tabindex,
 			'id' => 'wpProfilePreview',
 			'inputId' => 'wpProfilePreview',
 			'useInputTag' => true,
-			'label' => $editpage->getContext()->msg( 'speedscope-editpage-profile-preview-label' )->text(),
+			'label' => $context->msg( 'speedscope-editpage-profile-preview-label' )->text(),
 			'infusable' => true,
 			'type' => 'submit',
 			// Allow previewing even when the form is in invalid state (T343585)
 			'formNoValidate' => true,
-			'title' => $editpage->getContext()->msg( 'speedscope-editpage-profile-preview-title' )->text(),
+			'title' => $context->msg( 'speedscope-editpage-profile-preview-title' )->text(),
 		] );
-
-		if ( $this->userOptionsLookup->getOption( $editpage->getContext()->getUser(), 'uselivepreview' ) ) {
-			$editpage->getContext()->getOutput()->addModules( 'ext.speedscope.edit' );
+		if ( $this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
+			$dropdown = new DropdownInputWidget( [
+				'name' => 'wpProfileType',
+				'inputId' => 'wpProfileType',
+				'id' => 'mw-speedscope-profile-type-selector',
+				'value' => 'parser',
+				'infusable' => true,
+				'options' => [
+					[
+						'data' => 'parser',
+						'label' => $context->msg( 'speedscope-profile-type-parser' )->text(),
+					],
+					[
+						'data' => 'php',
+						'label' => $context->msg( 'speedscope-profile-type-php' )->text(),
+					],
+				]
+			] );
+			$buttons['profilePreview'] = Html::rawElement(
+				'div',
+				[
+					'class' => 'mw-speedscope-profile-button-group'
+				],
+				$button . $dropdown,
+			);
+		} else {
+			$buttons['profilePreview'] = $button;
 		}
+
+		$context->getOutput()->addJsConfigVars( [
+			'speedscopeUseLivePreview' => $this->userOptionsLookup->getOption(
+				$context->getUser(),
+				'uselivepreview'
+			),
+		] );
+		$context->getOutput()->addModules( 'ext.speedscope.edit' );
 	}
 
 	/** @inheritDoc */
@@ -123,8 +157,9 @@ class ProfilePreviewsHooks implements
 		if ( $this->profilerManager->getProfile()?->getCause() === SpeedscopeProfile::CAUSE_FORCED_PREVIEW ) {
 			return;
 		}
-		$environment = $this->config->get( SpeedscopeConfigNames::ENVIRONMENT );
-		if ( $this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) ) {
+		$profileType = RequestContext::getMain()->getRequest()->getVal( 'wpProfileType' );
+		if ( $this->config->get( SpeedscopeConfigNames::ENABLE_PARSER_PROFILER ) && $profileType !== 'php' ) {
+			$environment = $this->config->get( SpeedscopeConfigNames::ENVIRONMENT );
 			$profiler = new ParserSpeedscopeProfiler( $environment, $parser->getPage(), $parser->getTargetLanguage() );
 		} else {
 			$profiler = new ExcimerSpeedscopeProfiler( SpeedscopeConfig::newFromConfig( $this->config ) );

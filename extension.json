@@ -127,11 +127,14 @@
 			"localBasePath": "resources/ext.speedscope.edit",
 			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
 			"dependencies": [
-				"mediawiki.jqueryMsg"
+				"mediawiki.jqueryMsg",
+				"oojs-ui-core"
 			],
-			"styles": [],
+			"styles": [
+				"edit.less"
+			],
 			"packageFiles": [
-				"livePreview.js"
+				"edit.js"
 			],
 			"messages": [
 				"previewnote",
