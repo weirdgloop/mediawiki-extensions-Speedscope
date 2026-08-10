@@ -9,11 +9,13 @@ mv mediawiki-$MW_BRANCH mediawiki
 
 cd mediawiki
 
+echo "Applying core patch."
 if [ "$MW_BRANCH" = "REL1_45" ]; then
-  echo "Applying core patch."
   patch -p1 < EarlyCopy/.github/workflows/parser-profiler-REL1_45.patch
+elif [ "$MW_BRANCH" = "REL1_46" ]; then
+  patch -p1 < EarlyCopy/.github/workflows/parser-profiler-REL1_46.patch
 else
-  echo "Did not apply core patch."
+  patch -p1 < EarlyCopy/.github/workflows/parser-profiler.patch
 fi
 
 composer install

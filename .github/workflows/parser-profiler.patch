@@ -1,0 +1,128 @@
+From 39de3d807dc2bb69a34d63f99826e3adfc49a2b4 Mon Sep 17 00:00:00 2001
+From: SomeRandomDeveloper <git@srd.dev>
+Date: Mon, 10 Aug 2026 18:32:53 +0200
+Subject: [PATCH] Parser: Add support for profiling frame expansions
+
+Part of WG-681
+
+Change-Id: Ibdb362dec2ce7f1e8b05871f7474567a53a3ae3d
+---
+ autoload.php                        |  1 +
+ includes/Parser/IParserProfiler.php | 14 ++++++++++++++
+ includes/Parser/PPFrame_Hash.php    | 22 ++++++++++++++++++++++
+ 3 files changed, 37 insertions(+)
+ create mode 100644 includes/Parser/IParserProfiler.php
+
+diff --git a/autoload.php b/autoload.php
+index 83cb0b79a99..4fdb1598809 100644
+--- a/autoload.php
++++ b/autoload.php
+@@ -2609,6 +2609,7 @@ $wgAutoloadLocalClasses = [
+ 	'MediaWiki\\Parser\\Hook\\ParserOutputPostCacheTransformHook' => __DIR__ . '/includes/Parser/Hook/ParserOutputPostCacheTransformHook.php',
+ 	'MediaWiki\\Parser\\Hook\\ParserPreSaveTransformCompleteHook' => __DIR__ . '/includes/Parser/Hook/ParserPreSaveTransformCompleteHook.php',
+ 	'MediaWiki\\Parser\\Hook\\RejectParserCacheValueHook' => __DIR__ . '/includes/Parser/Hook/RejectParserCacheValueHook.php',
++	'MediaWiki\\Parser\\IParserProfiler' => __DIR__ . '/includes/Parser/IParserProfiler.php',
+ 	'MediaWiki\\Parser\\LinkHolderArray' => __DIR__ . '/includes/Parser/LinkHolderArray.php',
+ 	'MediaWiki\\Parser\\MWTidy' => __DIR__ . '/includes/Parser/MWTidy.php',
+ 	'MediaWiki\\Parser\\MagicWord' => __DIR__ . '/includes/Parser/MagicWord.php',
+diff --git a/includes/Parser/IParserProfiler.php b/includes/Parser/IParserProfiler.php
+new file mode 100644
+index 00000000000..db67804d672
+--- /dev/null
++++ b/includes/Parser/IParserProfiler.php
+@@ -0,0 +1,14 @@
++<?php
++
++namespace MediaWiki\Parser;
++
++/**
++ * WGL - Interface used by the Speedscope extension
++ */
++interface IParserProfiler {
++
++	public function startFrame( string $type, array $bits ): void;
++
++	public function endFrame(): void;
++
++}
+diff --git a/includes/Parser/PPFrame_Hash.php b/includes/Parser/PPFrame_Hash.php
+index 5ae72734ad6..e173ab1cee2 100644
+--- a/includes/Parser/PPFrame_Hash.php
++++ b/includes/Parser/PPFrame_Hash.php
+@@ -78,6 +78,9 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 
+ 	private bool $useHeadingPFragments;
+ 
++	/** WGL - Set by the Speedscope extension */
++	private static ?IParserProfiler $profiler = null;
++
+ 	/**
+ 	 * @param Preprocessor $preprocessor The parent preprocessor
+ 	 */
+@@ -270,6 +273,8 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 			} elseif ( $contextName === 'template' ) {
+ 				# Double-brace expansion
+ 				$bits = PPNode_Hash_Tree::splitRawTemplate( $contextChildren );
++				// WGL - Notify profiler if one is set
++				self::$profiler?->startFrame( $contextName, $bits );
+ 				if ( $flags & PPFrame::NO_TEMPLATES ) {
+ 					$newIterator = $this->virtualBracketedImplode(
+ 						'{{', '|', '}}',
+@@ -284,9 +289,13 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 						$out .= $ret['text'];
+ 					}
+ 				}
++				// WGL - Notify profiler if one is set
++				self::$profiler?->endFrame();
+ 			} elseif ( $contextName === 'tplarg' ) {
+ 				# Triple-brace expansion
+ 				$bits = PPNode_Hash_Tree::splitRawTemplate( $contextChildren );
++				// WGL - Notify profiler if one is set
++				self::$profiler?->startFrame( $contextName, $bits );
+ 				if ( $flags & PPFrame::NO_ARGS ) {
+ 					$newIterator = $this->virtualBracketedImplode(
+ 						'{{{', '|', '}}}',
+@@ -301,6 +310,8 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 						$out .= $ret['text'];
+ 					}
+ 				}
++				// WGL - Notify profiler if one is set
++				self::$profiler?->endFrame();
+ 			} elseif ( $contextName === 'comment' ) {
+ 				# HTML-style comment
+ 				# Remove it in HTML, pre+remove and STRIP_COMMENTS modes
+@@ -340,6 +351,8 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 				# Extension tag
+ 				$bits = PPNode_Hash_Tree::splitRawExt( $contextChildren ) +
+ 					[ 'attr' => null, 'inner' => null, 'close' => null ];
++				// WGL - Notify profiler if one is set
++				self::$profiler?->startFrame( $contextName, $bits );
+ 				if ( $flags & PPFrame::NO_TAGS ) {
+ 					$s = '<' . $bits['name']->getFirstChild()->value;
+ 					if ( $bits['attr'] ) {
+@@ -357,6 +370,8 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 				} else {
+ 					$out .= $this->parser->extensionSubstitution( $bits, $this );
+ 				}
++				// WGL - Notify profiler if one is set
++				self::$profiler?->endFrame();
+ 			} elseif ( $contextName === 'h' ) {
+ 				# Heading
+ 				if ( $this->parser->getOutputType() === Parser::OT_HTML ) {
+@@ -657,6 +672,13 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 		wfDeprecated( __METHOD__, '1.46' );
+ 		return $this->ttl;
+ 	}
++
++	/**
++	 * WGL - Used by the Speedscope extension
++	 */
++	public static function setProfiler( ?IParserProfiler $profiler ): void {
++		self::$profiler = $profiler;
++	}
+ }
+ 
+ /** @deprecated class alias since 1.43 */
+-- 
+2.55.0
+
