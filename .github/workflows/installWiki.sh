@@ -9,6 +9,13 @@ mv mediawiki-$MW_BRANCH mediawiki
 
 cd mediawiki
 
+if [ "$MW_BRANCH" = "REL1_45" ]; then
+  echo "Applying core patch."
+  patch -p1 < EarlyCopy/.github/workflows/parser-profiler-REL1_45.patch
+else
+  echo "Did not apply core patch."
+fi
+
 composer install
 php maintenance/install.php --dbtype sqlite --dbuser root --dbname mw --dbpath $(pwd) --pass AdminPassword WikiName AdminUser
 
