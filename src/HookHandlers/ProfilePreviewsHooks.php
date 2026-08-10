@@ -4,7 +4,7 @@ namespace MediaWiki\Extension\Speedscope\HookHandlers;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
-use MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\Excimer\ExcimerSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\Profiler\Parser\ParserSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;

@@ -5,9 +5,13 @@ namespace MediaWiki\Extension\Speedscope\Tests\Unit;
 use MediaWiki\Config\HashConfig;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\Speedscope\HookHandlers\ProfilePreviewsHooks;
+use MediaWiki\Extension\Speedscope\Profiler\Excimer\ExcimerSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\NoOpSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWiki\Message\Message;
 use MediaWiki\Page\PageIdentityValue;
 use MediaWiki\Parser\Parser;
@@ -24,7 +28,7 @@ use MediaWikiUnitTestCase;
 class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 
 	private function newHooks(
-		?ISpeedscopeProfiler $profiler = null,
+		?SpeedscopeProfilerManager $profilerManager = null,
 		?User $user = null,
 		bool $userOptionEnabled = true,
 		array $configOverrides = [],
@@ -32,7 +36,8 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 		$config = new HashConfig( $configOverrides + [
 			SpeedscopeConfigNames::ENDPOINT => 'localhost:3000',
 			SpeedscopeConfigNames::PUBLIC_ENDPOINT => null,
-		] );
+			SpeedscopeConfigNames::ENABLE_PARSER_PROFILER => false,
+		] + SpeedscopeConfig::DEFAULTS );
 
 		$user ??= $this->createNoOpMock( User::class );
 		RequestContext::getMain()->setUser( $user );
@@ -41,9 +46,11 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 			->with( $user, ProfilePreviewsHooks::PREFERENCE_NAME )
 			->willReturn( $userOptionEnabled );
 
+		$profilerManager ??= new SpeedscopeProfilerManager( $this->createNoOpMock( ISpeedscopeProfiler::class ) );
+
 		return new ProfilePreviewsHooks(
 			$config,
-			$profiler ?? $this->createMock( ISpeedscopeProfiler::class ),
+			$profilerManager,
 			$userOptionsLookup
 		);
 	}
@@ -101,26 +108,21 @@ class ProfilePreviewsHooksUnitTest extends MediaWikiUnitTestCase {
 		$parser->method( 'msg' )->willReturn( $this->createMock( Message::class ) );
 
 		$text = '';
-		$createdProfile = false;
-		$profiler = $this->createMock( ISpeedscopeProfiler::class );
-		$profiler->expects( $this->once() )
-			->method( 'recordProfile' )
-			->with( SpeedscopeProfile::CAUSE_FORCED_PREVIEW )
-			->willReturnCallback( static function () use ( &$createdProfile ) {
-				$createdProfile = true;
-			} );
-		$profile = $this->createMock( SpeedscopeProfile::class );
-		$profiler->expects( $this->atLeastOnce() )
-			->method( 'getProfile' )
-			->willReturnCallback( static function () use ( $profile, &$createdProfile ) {
-				return $createdProfile ? $profile : null;
-			} );
 
-		$this->newHooks( profiler: $profiler )->onParserBeforeInternalParse(
+		$profilerManager = new SpeedscopeProfilerManager( new NoOpSpeedscopeProfiler() );
+		$hooks = $this->newHooks( profilerManager: $profilerManager );
+
+		$hooks->onParserBeforeInternalParse(
 			$parser,
 			$text,
 			$this->createNoOpMock( StripState::class )
 		);
+
+		// TODO test with parser profiler as well
+		$this->assertInstanceOf( ExcimerSpeedscopeProfiler::class, $profilerManager->getProfiler() );
+		$profile = $profilerManager->getProfile();
+		$this->assertNotNull( $profile );
+		$this->assertEquals( SpeedscopeProfile::CAUSE_FORCED_PREVIEW, $profile->getCause() );
 	}
 
 }

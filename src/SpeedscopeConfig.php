@@ -10,12 +10,12 @@ use MediaWiki\Config\Config;
  */
 class SpeedscopeConfig {
 
-	private const NAMES = [
-		SpeedscopeConfigNames::ENVIRONMENT,
-		SpeedscopeConfigNames::EXCLUDED_ENTRY_POINTS,
-		SpeedscopeConfigNames::FORCED_PARAM,
-		SpeedscopeConfigNames::PERIOD,
-		SpeedscopeConfigNames::SAMPLING_RATES,
+	public const DEFAULTS = [
+		SpeedscopeConfigNames::ENVIRONMENT => 'prod',
+		SpeedscopeConfigNames::EXCLUDED_ENTRY_POINTS => [ 'cli' ],
+		SpeedscopeConfigNames::FORCED_PARAM => 'forceprofile',
+		SpeedscopeConfigNames::PERIOD => [ 'forced' => 0.0001, 'sample' => 0.001 ],
+		SpeedscopeConfigNames::SAMPLING_RATES => [ 'prod' => 0.01 ],
 	];
 
 	/**
@@ -36,11 +36,15 @@ class SpeedscopeConfig {
 
 	public static function newFromGlobals(): self {
 		// @phan-suppress-next-line PhanParamTooFewUnpack
-		return new self( ...array_map( static fn ( $c ) => $GLOBALS["wg$c"], self::NAMES ) );
+		return new self( ...array_map( static fn ( $c ) => $GLOBALS["wg$c"], array_keys( self::DEFAULTS ) ) );
 	}
 
 	public static function newFromConfig( Config $config ): self {
-		return new self( ...array_map( static fn ( $c ) => $config->get( $c ), self::NAMES ) );
+		// @phan-suppress-next-line PhanParamTooFewUnpack
+		return new self( ...array_map(
+			static fn ( $c ) => $config->get( $c ) ?? self::DEFAULTS[$c],
+			array_keys( self::DEFAULTS )
+		) );
 	}
 
 	public function getEnvironment(): string {

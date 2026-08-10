@@ -4,8 +4,10 @@ namespace MediaWiki\Extension\Speedscope\Tests\Unit;
 
 use MediaWiki\Config\HashConfig;
 use MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks;
+use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWiki\Output\OutputPage;
 use MediaWiki\Parser\Parser;
 use MediaWiki\Parser\ParserOptions;
@@ -24,7 +26,10 @@ class ProfileHooksUnitTest extends MediaWikiUnitTestCase {
 			SpeedscopeConfigNames::ENDPOINT => 'localhost:3000',
 			SpeedscopeConfigNames::PUBLIC_ENDPOINT => null,
 		] );
-		return new ProfileHooks( $config, $profile );
+		$profiler = $this->createNoOpMock( ISpeedscopeProfiler::class, [ 'getProfile' ] );
+		$profiler->method( 'getProfile' )->willReturn( $profile );
+		$profilerManager = new SpeedscopeProfilerManager( $profiler );
+		return new ProfileHooks( $config, $profilerManager );
 	}
 
 	public function testOnBeforePageDisplay_Forced() {

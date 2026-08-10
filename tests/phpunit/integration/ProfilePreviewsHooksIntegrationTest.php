@@ -6,9 +6,11 @@ use MediaWiki\Context\DerivativeContext;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\Extension\Speedscope\HookHandlers\ProfilePreviewsHooks;
-use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\Excimer\ExcimerSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\NoOpSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWiki\Page\Article;
 use MediaWiki\Parser\ParserOutput;
 use MediaWikiIntegrationTestCase;
@@ -26,8 +28,14 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testPreviewParseStartsProfileRecording() {
 		$this->overrideConfigValues( [
-			SpeedscopeConfigNames::ENDPOINT => 'http://localhost:3000'
+			SpeedscopeConfigNames::ENDPOINT => 'http://localhost:3000',
 		] );
+
+		$profilerManager = $this->getServiceContainer()->get( 'Speedscope.ProfilerManager' );
+		/** @var SpeedscopeProfilerManager $profilerManager $page */
+
+		$this->assertNull( $profilerManager->getProfile() );
+		$this->assertInstanceOf( NoOpSpeedscopeProfiler::class, $profilerManager->getProfiler() );
 
 		$page = $this->getExistingTestPage( __METHOD__ );
 		$context = new DerivativeContext( RequestContext::getMain() );
@@ -44,33 +52,15 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 		);
 		$this->getServiceContainer()->getUserOptionsManager()->saveOptions( $user->getUserIdentity() );
 		$editPage = new EditPage( Article::newFromWikiPage( $page, $context ) );
-		$this->setService( 'Speedscope.Profiler', function () {
-			$recordingStarted = false;
-
-			$mock = $this->createMock( ISpeedscopeProfiler::class );
-			$mock->expects( $this->once() )
-				->method( 'recordProfile' )
-				->with( SpeedscopeProfile::CAUSE_FORCED_PREVIEW )
-				->willReturnCallback( static function () use ( &$recordingStarted ) {
-					$recordingStarted = true;
-				} );
-			$mock->expects( $this->once() )->method( 'stopRecording' );
-
-			$profile = new SpeedscopeProfile(
-				'test',
-				SpeedscopeProfile::CAUSE_FORCED_PREVIEW,
-				'integrationtest123'
-			);
-			$mock->method( 'getProfile' )
-				->willReturnCallback( static function () use ( $profile, &$recordingStarted ) {
-					return $recordingStarted ? $profile : null;
-				} );
-
-			return $mock;
-		} );
 		[ 'parserOutput' => $parserOutput ] = TestingAccessWrapper::newFromObject( $editPage )
 			->doPreviewParse( $page->getContent() );
 		/** @var ParserOutput $parserOutput */
+
+		// TODO test with parser profiler as well
+		$this->assertInstanceOf( ExcimerSpeedscopeProfiler::class, $profilerManager->getProfiler() );
+		$profile = $profilerManager->getProfile();
+		$this->assertNotNull( $profile );
+		$this->assertEquals( SpeedscopeProfile::CAUSE_FORCED_PREVIEW, $profile->getCause() );
 
 		$limitReport = EditPage::getPreviewLimitReport( $parserOutput );
 		$this->assertStringContainsString( 'http://localhost:3000/view/', $limitReport );

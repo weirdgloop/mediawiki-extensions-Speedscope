@@ -1,10 +1,11 @@
 <?php
 
-namespace MediaWiki\Extension\Speedscope\Profiler;
+namespace MediaWiki\Extension\Speedscope\Profiler\Excimer;
 
 use ExcimerProfiler;
 use LogicException;
 use MediaWiki\Deferred\DeferredUpdates;
+use MediaWiki\Extension\Speedscope\Profiler\AbstractSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;

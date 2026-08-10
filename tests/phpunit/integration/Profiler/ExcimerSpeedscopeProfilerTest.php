@@ -3,7 +3,7 @@
 namespace MediaWiki\Extension\Speedscope\Tests\Integration\Profiler;
 
 use MediaWiki\Deferred\DeferredUpdates;
-use MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\Excimer\ExcimerSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
@@ -16,7 +16,7 @@ use Wikimedia\ScopedCallback;
 use Wikimedia\TestingAccessWrapper;
 
 /**
- * @covers \MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler
+ * @covers \MediaWiki\Extension\Speedscope\Profiler\Excimer\ExcimerSpeedscopeProfiler
  */
 class ExcimerSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 
