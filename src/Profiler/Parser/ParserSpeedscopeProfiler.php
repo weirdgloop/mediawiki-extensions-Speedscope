@@ -21,7 +21,7 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 
 	public function __construct(
 		string $environment,
-		private ?PageReference $page,
+		private readonly ?PageReference $page,
 		private readonly Language $language,
 	) {
 		parent::__construct( $environment );
