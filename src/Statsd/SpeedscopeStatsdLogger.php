@@ -6,6 +6,7 @@ use ExcimerLog;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\Profiler\ProfilingContext;
 use Wikimedia\Stats\StatsFactory;
 
@@ -27,6 +28,7 @@ class SpeedscopeStatsdLogger {
 	}
 
 	public function processExcimerLog( ExcimerLog $log ): void {
+		$time = hrtime(true);
 		if ( !$this->options->get( SpeedscopeConfigNames::LOG_TO_STATSD ) ) {
 			return;
 		}
@@ -68,6 +70,11 @@ class SpeedscopeStatsdLogger {
 					$components[$component] = true;
 				}
 			}
+
+			$done = hrtime(true);
+
+			$total = ( $done - $time ) / 1e6;
+			LoggerFactory::getInstance( 'speedscope-statsd' )->info( "Took {$total}ms" );
 		}
 	}
 
