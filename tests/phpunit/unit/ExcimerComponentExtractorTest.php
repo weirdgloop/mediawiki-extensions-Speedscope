@@ -35,7 +35,7 @@ class ExcimerComponentExtractorTest extends MediaWikiUnitTestCase {
 			[ '{closure:/var/www/html/w/includes/Setup.php(340)}', null ],
 			[ 'Wikimedia\base_convert 1', null ],
 			[ 'MediaWiki\MediaWikiServices::getInstance', 'core_other' ],
-			[ 'FileContentsHasher::getFileContentsHash', 'core_utils' ],
+			[ 'FileContentsHasher::getFileContentsHash', $newFolders ? 'core_Utils' : 'core_utils' ],
 			[ 'MediaWiki\ResourceLoader\ResourceLoader::respond', 'core_ResourceLoader' ],
 			[ 'MediaWiki\Language\Language::getJsData', $newFolders ? 'core_Language' : 'core_language' ],
 			[ 'Wikimedia\AtEase\AtEase::suppressWarnings 1', 'lib_at-ease' ],
