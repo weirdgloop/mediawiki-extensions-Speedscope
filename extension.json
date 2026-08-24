@@ -40,6 +40,10 @@
 			"description": "A query parameter that forces profiling when present. Default defined in bootstrap.php",
 			"value": null
 		},
+		"LogToStatsd": {
+			"description": "Whether profile samples should be sent to Statsd.",
+			"value": false
+		},
 		"Period": {
 			"description": "The period used by excimer. Default defined in bootstrap.php",
 			"value": null

@@ -8,6 +8,7 @@ use MediaWiki\Deferred\DeferredUpdates;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\Statsd\SpeedscopeStatsdLogger;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
@@ -114,6 +115,12 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 			foreach ( $status->getMessages( 'error' ) as $error ) {
 				$logger->error( wfMessage( $error )->inLanguage( 'en' )->text() );
 			}
+		}
+
+		if ( !$this->profile->isForced() ) {
+			$statsdLogger = MediaWikiServices::getInstance()->getService( 'Speedscope.StatsdLogger' );
+			/** @var SpeedscopeStatsdLogger $statsdLogger */
+			$statsdLogger->processExcimerLog( $this->excimer->getLog() );
 		}
 	}
 
