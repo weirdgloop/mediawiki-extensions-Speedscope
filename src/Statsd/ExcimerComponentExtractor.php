@@ -12,7 +12,8 @@ use ReflectionException;
  */
 class ExcimerComponentExtractor {
 
-	private const CLASS_REGEX = '/^([a-zA-Z0-9_\\\\]+)::[a-zA-Z0-9_]+$/';
+	// The regex is not anchored at the end because there's a number after the top element in the stack
+	private const CLASS_REGEX = '/^([a-zA-Z0-9_\\\\]+)::[a-zA-Z0-9_]+(?: \d+)?$/';
 
 	public const CONSTRUCTOR_OPTIONS = [
 		MainConfigNames::ExtensionDirectory,
