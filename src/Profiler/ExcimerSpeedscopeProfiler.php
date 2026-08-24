@@ -117,7 +117,8 @@ class ExcimerSpeedscopeProfiler implements ISpeedscopeProfiler {
 			}
 		}
 
-		if ( !$this->profile->isForced() ) {
+		// TODO
+		if ( true || !$this->profile->isForced() ) {
 			$statsdLogger = MediaWikiServices::getInstance()->getService( 'Speedscope.StatsdLogger' );
 			/** @var SpeedscopeStatsdLogger $statsdLogger */
 			$statsdLogger->processExcimerLog( $this->excimer->getLog() );
