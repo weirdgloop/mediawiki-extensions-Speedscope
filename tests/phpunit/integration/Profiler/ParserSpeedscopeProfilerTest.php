@@ -133,6 +133,7 @@ class ParserSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 			[ '#if', '{{#if}}' ],
 			[ '#invoke:Test', '{{#invoke:Test}}' ],
 			[ 'TestTemplate', '{{Template:TestTemplate}}' ],
+			[ '#invoke: Test2 ', '{{#invoke: Test2}}' ]
 		];
 	}
 

@@ -83,7 +83,7 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 		if ( !str_starts_with( $templateName, '#' ) ) {
 			$templateName = $this->language->getNsText( NS_TEMPLATE ) . ":$templateName";
 		}
-		return '{{' . $templateName . '}}';
+		return '{{' . trim( $templateName ) . '}}';
 	}
 
 	/** @inheritDoc */
