@@ -11,6 +11,7 @@ use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Http\HttpRequestFactory;
+use MediaWiki\MainConfigNames;
 use MediaWikiUnitTestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -30,6 +31,7 @@ class SpeedscopeLoggerTest extends MediaWikiUnitTestCase {
 			SpeedscopeConfigNames::ENDPOINT => 'localhost:3000',
 			SpeedscopeConfigNames::EXPOSE_CPU_INFO => false,
 			SpeedscopeConfigNames::TOKEN => 'test-token',
+			MainConfigNames::HTTPProxy => '',
 		] );
 		return new SpeedscopeLogger(
 			new ServiceOptions( SpeedscopeLogger::CONSTRUCTOR_OPTIONS, $config ),

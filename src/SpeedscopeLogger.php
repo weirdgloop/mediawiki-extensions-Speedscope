@@ -7,6 +7,7 @@ use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Exception\MWExceptionHandler;
 use MediaWiki\Http\HttpRequestFactory;
+use MediaWiki\MainConfigNames;
 use MediaWiki\WikiMap\WikiMap;
 use StatusValue;
 use Throwable;
@@ -20,6 +21,7 @@ class SpeedscopeLogger {
 		SpeedscopeConfigNames::ENDPOINT,
 		SpeedscopeConfigNames::EXPOSE_CPU_INFO,
 		SpeedscopeConfigNames::TOKEN,
+		MainConfigNames::HTTPProxy,
 	];
 
 	/**
@@ -63,7 +65,9 @@ class SpeedscopeLogger {
 			'environment' => $profile->getEnvironment(),
 		] );
 
-		$client = $this->httpRequestFactory->createGuzzleClient();
+		$client = $this->httpRequestFactory->createGuzzleClient( [
+			'proxy' => $this->options->get( MainConfigNames::HTTPProxy ),
+		] );
 		$endpoint = $this->options->get( SpeedscopeConfigNames::ENDPOINT );
 		$options = [
 			RequestOptions::BODY => gzencode( $body ),
