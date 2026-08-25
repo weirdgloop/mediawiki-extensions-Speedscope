@@ -7,6 +7,7 @@ use MediaWiki\Extension\Speedscope\Profiler\Parser\ParserSpeedscopeProfiler;
 use MediaWiki\Page\PageIdentityValue;
 use MediaWiki\Page\PageReference;
 use MediaWiki\Page\PageReferenceValue;
+use MediaWiki\Parser\Parser;
 use MediaWiki\Parser\ParserOptions;
 use MediaWiki\Parser\PPFrame_Hash;
 use MediaWikiIntegrationTestCase;
@@ -27,6 +28,7 @@ class ParserSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 			$this->markTestSkipped( 'Core patch not applied (could not find PPFrame_Hash::setProfiler())' );
 		} else {
 			PPFrame_Hash::setProfiler( null );
+			Parser::setProfiler( null );
 		}
 	}
 
@@ -35,6 +37,7 @@ class ParserSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 
 		if ( method_exists( PPFrame_Hash::class, 'setProfiler' ) ) {
 			PPFrame_Hash::setProfiler( null );
+			Parser::setProfiler( null );
 		}
 	}
 

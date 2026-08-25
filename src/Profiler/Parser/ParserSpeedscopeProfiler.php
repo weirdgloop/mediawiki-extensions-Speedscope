@@ -9,6 +9,7 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\PageReference;
 use MediaWiki\Parser\IParserProfiler;
+use MediaWiki\Parser\Parser;
 use MediaWiki\Parser\PPFrame_Hash;
 
 /**
@@ -32,13 +33,15 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 		$this->data = new ParserProfileData();
 		$logger = LoggerFactory::getInstance( 'Speedscope' );
 
-		if ( !method_exists( PPFrame_Hash::class, 'setProfiler' ) ) {
-			$logger->error( 'Cannot record parser profile: PPFrame_Hash::setProfiler is missing!' );
+		if ( !method_exists( PPFrame_Hash::class, 'setProfiler' )
+			|| !method_exists( Parser::class, 'setProfiler' ) ) {
+			$logger->error( 'Cannot record parser profile: Core patch is missing!' );
 			return;
 		}
 
 		$this->recording = true;
 		PPFrame_Hash::setProfiler( $this );
+		Parser::setProfiler( $this );
 
 		// Start the main frame for the parser
 		$this->data->startFrame( (string)( $this->page ?? 'Parse' ) );
@@ -50,6 +53,7 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 			return;
 		}
 		PPFrame_Hash::setProfiler( null );
+		Parser::setProfiler( null );
 		// End the main frame
 		$this->data->endFrame();
 		$this->recording = false;

@@ -13,6 +13,7 @@ use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWiki\Page\Article;
+use MediaWiki\Parser\Parser;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Parser\PPFrame_Hash;
 use MediaWikiIntegrationTestCase;
@@ -28,6 +29,7 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
 		if ( method_exists( PPFrame_Hash::class, 'setProfiler' ) ) {
 			PPFrame_Hash::setProfiler( null );
+			Parser::setProfiler( null );
 		}
 	}
 
