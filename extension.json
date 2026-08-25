@@ -128,7 +128,8 @@
 			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
 			"dependencies": [
 				"mediawiki.jqueryMsg",
-				"oojs-ui-core"
+				"oojs-ui-core",
+				"oojs-ui-widgets"
 			],
 			"packageFiles": [
 				"edit.js"
