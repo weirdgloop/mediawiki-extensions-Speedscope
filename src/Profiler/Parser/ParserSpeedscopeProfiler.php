@@ -71,7 +71,7 @@ class ParserSpeedscopeProfiler extends AbstractSpeedscopeProfiler implements IPa
 			return;
 		}
 		$frameName = match ( $type ) {
-			'template' => $this->getTemplateFrameName( $bits['title']->getFirstChild() ),
+			'template' => $this->getTemplateFrameName( (string)$bits['title']->getFirstChild() ),
 			'tplarg' => '{{{' . $bits['title']->getFirstChild() . '}}}',
 			'ext' => '<' . $bits['name']->getFirstChild() . '>',
 			default => $type,
