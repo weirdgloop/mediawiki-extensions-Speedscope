@@ -20,6 +20,10 @@
 	},
 	"config_prefix": "wgSpeedscope",
 	"config": {
+		"EnableParserProfiler": {
+			"description": "Enable the parser profiler when creating a profile preview. This requires a core patch.",
+			"value": false
+		},
 		"Endpoint": {
 			"description": "The endpoint to log the profile to. NOTE: Don't allow local wiki admins to configure this option, as it can be abused for XSRF and XSS.",
 			"value": "http://localhost:3000"
@@ -66,14 +70,14 @@
 			"class": "MediaWiki\\Extension\\Speedscope\\HookHandlers\\ProfileHooks",
 			"services": [
 				"MainConfig",
-				"Speedscope.Profile"
+				"Speedscope.ProfilerManager"
 			]
 		},
 		"profile-previews": {
 			"class": "MediaWiki\\Extension\\Speedscope\\HookHandlers\\ProfilePreviewsHooks",
 			"services": [
 				"MainConfig",
-				"Speedscope.Profiler",
+				"Speedscope.ProfilerManager",
 				"UserOptionsLookup"
 			]
 		}
@@ -123,16 +127,24 @@
 			"localBasePath": "resources/ext.speedscope.edit",
 			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit",
 			"dependencies": [
-				"mediawiki.jqueryMsg"
+				"mediawiki.jqueryMsg",
+				"oojs-ui-core",
+				"oojs-ui-widgets"
 			],
-			"styles": [],
 			"packageFiles": [
-				"livePreview.js"
+				"edit.js"
 			],
 			"messages": [
 				"previewnote",
 				"speedscope-editpage-profile-notice",
 				"speedscope-editpage-profile-link-label"
+			]
+		},
+		"ext.speedscope.edit.styles": {
+			"localBasePath": "resources/ext.speedscope.edit.styles",
+			"remoteExtPath": "Speedscope/resources/ext.speedscope.edit.styles",
+			"styles": [
+				"edit.less"
 			]
 		}
 	},

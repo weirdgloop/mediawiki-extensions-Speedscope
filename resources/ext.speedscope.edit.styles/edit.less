@@ -1,0 +1,21 @@
+@import 'mediawiki.skin.variables.less';
+
+.mw-speedscope-profile-button-group {
+	display: inline-flex;
+	vertical-align: middle;
+	margin-right: @spacing-50;
+
+	#wpProfilePreview {
+		margin-right: 0;
+		border-bottom-right-radius: 0;
+		border-top-right-radius: 0;
+		border-right: @border-color-transparent;
+	}
+
+	// Select both the PHP and the infused version
+	#wpProfileType,
+	.oo-ui-dropdownWidget-handle {
+		border-bottom-left-radius: 0;
+		border-top-left-radius: 0;
+	}
+}

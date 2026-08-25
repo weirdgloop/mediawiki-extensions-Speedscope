@@ -7,19 +7,19 @@ use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 interface ISpeedscopeProfiler {
 
 	/**
-	 * @return SpeedscopeProfile|null The profile that's being recorded, or null if none is being recorded
-	 */
-	public function getProfile(): ?SpeedscopeProfile;
-
-	/**
-	 * Start recording a profile.
+	 * Create a profile and start recording it.
 	 * @param string $cause One of the SpeedscopeProfile::CAUSE_... constants
 	 */
-	public function recordProfile( string $cause, ?string $id = null ): void;
+	public function recordProfile( string $cause ): void;
 
 	/**
 	 * Stop recording the profile that's currently being recorded.
 	 */
 	public function stopRecording(): void;
+
+	/**
+	 * @return SpeedscopeProfile|null The profile that's being recorded, or null if none is being recorded
+	 */
+	public function getProfile(): ?SpeedscopeProfile;
 
 }

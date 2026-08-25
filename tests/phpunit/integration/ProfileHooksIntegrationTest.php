@@ -4,7 +4,9 @@ namespace MediaWiki\Extension\Speedscope\Tests\Integration;
 
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\Speedscope\HookHandlers\ProfileHooks;
+use MediaWiki\Extension\Speedscope\Profiler\ISpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWikiIntegrationTestCase;
 
 /**
@@ -13,7 +15,7 @@ use MediaWikiIntegrationTestCase;
 class ProfileHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 
 	public function testSendProfileHeader_SendsHeader() {
-		$this->setService( 'Speedscope.Profile', static fn () => new SpeedscopeProfile(
+		$this->overrideProfile( new SpeedscopeProfile(
 			'test',
 			SpeedscopeProfile::CAUSE_SAMPLE,
 			'test-id'
@@ -26,7 +28,7 @@ class ProfileHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 	}
 
 	public function testSendProfileHeader_PrintsProfileId() {
-		$this->setService( 'Speedscope.Profile', static fn () => new SpeedscopeProfile(
+		$this->overrideProfile( new SpeedscopeProfile(
 			'test',
 			SpeedscopeProfile::CAUSE_FORCED_ENV,
 			'test-id'
@@ -41,9 +43,16 @@ class ProfileHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 	}
 
 	public function testSendProfileHeader_NoProfile() {
-		$this->setService( 'Speedscope.Profile', static fn () => null );
+		$this->overrideProfile( null );
 		ProfileHooks::sendProfileHeader();
 		$this->assertNull( RequestContext::getMain()->getRequest()->response()->getHeader( 'Profile-Id' ) );
+	}
+
+	protected function overrideProfile( ?SpeedscopeProfile $profile ): void {
+		$profiler = $this->createNoOpMock( ISpeedscopeProfiler::class, [ 'getProfile' ] );
+		$profiler->method( 'getProfile' )->willReturn( $profile );
+		$manager = new SpeedscopeProfilerManager( $profiler );
+		$this->setService( 'Speedscope.ProfilerManager', $manager );
 	}
 
 }

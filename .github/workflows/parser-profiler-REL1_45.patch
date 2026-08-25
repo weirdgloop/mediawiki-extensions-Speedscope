@@ -1,0 +1,248 @@
+From e5f110244b3f9a43f852e25eb5f07594a98e7efa Mon Sep 17 00:00:00 2001
+From: SomeRandomDeveloper <git@srd.dev>
+Date: Tue, 28 Jul 2026 18:38:18 +0200
+Subject: [PATCH] parser: Add support for profiling frame expansions
+
+Part of WG-681
+
+Change-Id: I79e723dee41ef1de03c1b61835889a20b6b15cd7
+---
+ autoload.php                        |  1 +
+ includes/parser/IParserProfiler.php | 14 ++++++++++++
+ includes/parser/PPFrame_Hash.php    | 16 ++++++++++++++
+ includes/parser/Parser.php          | 34 +++++++++++++++++++++++++++++
+ 4 files changed, 65 insertions(+)
+ create mode 100644 includes/parser/IParserProfiler.php
+
+diff --git a/autoload.php b/autoload.php
+index 52b35d26703..3ca483c3bc1 100644
+--- a/autoload.php
++++ b/autoload.php
+@@ -2286,6 +2286,7 @@ $wgAutoloadLocalClasses = [
+ 	'MediaWiki\\Parser\\CoreTagHooks' => __DIR__ . '/includes/parser/CoreTagHooks.php',
+ 	'MediaWiki\\Parser\\DateFormatter' => __DIR__ . '/includes/parser/DateFormatter.php',
+ 	'MediaWiki\\Parser\\DateFormatterFactory' => __DIR__ . '/includes/parser/DateFormatterFactory.php',
++	'MediaWiki\\Parser\\IParserProfiler' => __DIR__ . '/includes/parser/IParserProfiler.php',
+ 	'MediaWiki\\Parser\\LinkHolderArray' => __DIR__ . '/includes/parser/LinkHolderArray.php',
+ 	'MediaWiki\\Parser\\MWTidy' => __DIR__ . '/includes/parser/MWTidy.php',
+ 	'MediaWiki\\Parser\\MagicWord' => __DIR__ . '/includes/parser/MagicWord.php',
+diff --git a/includes/parser/IParserProfiler.php b/includes/parser/IParserProfiler.php
+new file mode 100644
+index 00000000000..db67804d672
+--- /dev/null
++++ b/includes/parser/IParserProfiler.php
+@@ -0,0 +1,14 @@
++<?php
++
++namespace MediaWiki\Parser;
++
++/**
++ * WGL - Interface used by the Speedscope extension
++ */
++interface IParserProfiler {
++
++	public function startFrame( string $type, array $bits ): void;
++
++	public function endFrame(): void;
++
++}
+diff --git a/includes/parser/PPFrame_Hash.php b/includes/parser/PPFrame_Hash.php
+index 0c19f2a60e6..e2fe062486c 100644
+--- a/includes/parser/PPFrame_Hash.php
++++ b/includes/parser/PPFrame_Hash.php
+@@ -72,6 +72,9 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 	 */
+ 	private $maxPPExpandDepth;
+ 
++	/** WGL - Set by the Speedscope extension */
++	private static ?IParserProfiler $profiler = null;
++
+ 	/**
+ 	 * @param Preprocessor $preprocessor The parent preprocessor
+ 	 */
+@@ -256,6 +259,7 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 			} elseif ( $contextName === 'template' ) {
+ 				# Double-brace expansion
+ 				$bits = PPNode_Hash_Tree::splitRawTemplate( $contextChildren );
++				self::$profiler?->startFrame( $contextName, $bits );
+ 				if ( $flags & PPFrame::NO_TEMPLATES ) {
+ 					$newIterator = $this->virtualBracketedImplode(
+ 						'{{', '|', '}}',
+@@ -270,9 +274,11 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 						$out .= $ret['text'];
+ 					}
+ 				}
++				self::$profiler?->endFrame();
+ 			} elseif ( $contextName === 'tplarg' ) {
+ 				# Triple-brace expansion
+ 				$bits = PPNode_Hash_Tree::splitRawTemplate( $contextChildren );
++				self::$profiler?->startFrame( $contextName, $bits );
+ 				if ( $flags & PPFrame::NO_ARGS ) {
+ 					$newIterator = $this->virtualBracketedImplode(
+ 						'{{{', '|', '}}}',
+@@ -287,6 +293,7 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 						$out .= $ret['text'];
+ 					}
+ 				}
++				self::$profiler?->endFrame();
+ 			} elseif ( $contextName === 'comment' ) {
+ 				# HTML-style comment
+ 				# Remove it in HTML, pre+remove and STRIP_COMMENTS modes
+@@ -326,6 +333,7 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 				# Extension tag
+ 				$bits = PPNode_Hash_Tree::splitRawExt( $contextChildren ) +
+ 					[ 'attr' => null, 'inner' => null, 'close' => null ];
++				self::$profiler?->startFrame( $contextName, $bits );
+ 				if ( $flags & PPFrame::NO_TAGS ) {
+ 					$s = '<' . $bits['name']->getFirstChild()->value;
+ 					if ( $bits['attr'] ) {
+@@ -344,6 +352,7 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 					$out .= $this->parser->extensionSubstitution( $bits, $this,
+ 						(bool)( $flags & PPFrame::PROCESS_NOWIKI ) );
+ 				}
++				self::$profiler?->endFrame();
+ 			} elseif ( $contextName === 'h' ) {
+ 				# Heading
+ 				if ( $this->parser->getOutputType() === Parser::OT_HTML ) {
+@@ -623,6 +632,13 @@ class PPFrame_Hash implements Stringable, PPFrame {
+ 	public function getTTL() {
+ 		return $this->ttl;
+ 	}
++
++	/**
++	 * WGL - Used by the Speedscope extension
++	 */
++	public static function setProfiler( ?IParserProfiler $profiler ): void {
++		self::$profiler = $profiler;
++	}
+ }
+ 
+ /** @deprecated class alias since 1.43 */
+diff --git a/includes/parser/Parser.php b/includes/parser/Parser.php
+index 0b1b1566197..d06772289eb 100644
+--- a/includes/parser/Parser.php
++++ b/includes/parser/Parser.php
+@@ -360,6 +360,9 @@ class Parser {
+ 	private SectionProfiler $mProfiler;
+ 	private ?LinkRenderer $mLinkRenderer = null;
+ 
++	/** WGL - Set by the Speedscope extension */
++	private static ?IParserProfiler $profiler = null;
++
+ 	/**
+ 	 * @internal For use by ServiceWiring
+ 	 */
+@@ -1537,6 +1540,7 @@ class Parser {
+ 			$text = $this->replaceVariables( $text );
+ 		}
+ 
++		self::$profiler?->startFrame( 'Sanitizing HTML', [] );
+ 		$text = Sanitizer::internalRemoveHtmlTags(
+ 			$text,
+ 			// Callback from the Sanitizer for expanding items found in
+@@ -1549,29 +1553,42 @@ class Parser {
+ 			[],
+ 			[]
+ 		);
++		self::$profiler?->endFrame();
+ 		$this->hookRunner->onInternalParseBeforeLinks( $this, $text, $this->mStripState );
+ 
+ 		# Tables need to come after variable replacement for things to work
+ 		# properly; putting them before other transformations should keep
+ 		# exciting things like link expansions from showing up in surprising
+ 		# places.
++		self::$profiler?->startFrame( 'Tables', [] );
+ 		$text = $this->handleTables( $text );
++		self::$profiler?->endFrame();
+ 
+ 		$text = preg_replace( '/(^|\n)-----*/', '\\1<hr />', $text );
+ 
++		self::$profiler?->startFrame( 'Magic Words', [] );
+ 		$text = $this->handleDoubleUnderscore( $text );
++		self::$profiler?->endFrame();
+ 
+ 		$text = $this->handleHeadings( $text );
++		self::$profiler?->startFrame( 'Internal Links', [] );
+ 		$text = $this->handleInternalLinks( $text );
++		self::$profiler?->endFrame();
+ 		$text = $this->handleAllQuotes( $text );
++		self::$profiler?->startFrame( 'External Links', [] );
+ 		$text = $this->handleExternalLinks( $text );
++		self::$profiler?->endFrame();
+ 
+ 		# handleInternalLinks may sometimes leave behind
+ 		# absolute URLs, which have to be masked to hide them from handleExternalLinks
+ 		$text = str_replace( self::MARKER_PREFIX . 'NOPARSE', '', $text );
+ 
++		self::$profiler?->startFrame( 'Magic Links', [] );
+ 		$text = $this->handleMagicLinks( $text );
++		self::$profiler?->endFrame();
++		self::$profiler?->startFrame( 'Headings', [] );
+ 		$text = $this->finalizeHeadings( $text, $origText, $isMain );
++		self::$profiler?->endFrame();
+ 
+ 		return $text;
+ 	}
+@@ -1632,9 +1649,13 @@ class Parser {
+ 	private function internalParseHalfParsed( $text, $isMain = true, $linestart = true ) {
+ 		$text = $this->mStripState->unstripGeneral( $text );
+ 
++		self::$profiler?->startFrame( 'Block Levels', [] );
+ 		$text = BlockLevelPass::doBlockLevels( $text, $linestart );
++		self::$profiler?->endFrame();
+ 
++		self::$profiler?->startFrame( 'Link holders', [] );
+ 		$this->replaceLinkHoldersPrivate( $text );
++		self::$profiler?->endFrame();
+ 
+ 		/**
+ 		 * The input doesn't get language converted if
+@@ -1652,17 +1673,21 @@ class Parser {
+ 			# assumes that the links are all replaced and the only thing left
+ 			# is the <nowiki> mark.
+ 			$converter = $this->getTargetLanguageConverter();
++			self::$profiler?->startFrame( 'Language Conversion', [] );
+ 			$text = $converter->convert( $text );
++			self::$profiler?->endFrame();
+ 			// TOC will be converted below.
+ 		}
+ 		// Convert the TOC.   This is done *after* the main text
+ 		// so that all the editor-defined conversion rules (by convention
+ 		// defined at the start of the article) are applied to the TOC
++		self::$profiler?->startFrame( 'TOC', [] );
+ 		self::localizeTOC(
+ 			$this->mOutput->getTOCData(),
+ 			$this->getTargetLanguage(),
+ 			$converter // null if conversion is to be suppressed.
+ 		);
++		self::$profiler?->endFrame();
+ 		if ( $converter ) {
+ 			$this->mOutput->setLanguage( new Bcp47CodeValue(
+ 				LanguageCode::bcp47( $converter->getPreferredVariant() )
+@@ -1675,7 +1700,9 @@ class Parser {
+ 
+ 		$text = $this->mStripState->unstripGeneral( $text );
+ 
++		self::$profiler?->startFrame( 'Tidying', [] );
+ 		$text = $this->tidy->tidy( $text, [ Sanitizer::class, 'armorFrenchSpaces' ] );
++		self::$profiler?->endFrame();
+ 
+ 		if ( $isMain ) {
+ 			$this->hookRunner->onParserAfterTidy( $this, $text );
+@@ -6521,6 +6548,13 @@ class Parser {
+ 		$name = $this->getTitle()->getPrefixedText();
+ 		$this->logger->debug( __METHOD__ . ": set $flag flag on '$name'; $reason" );
+ 	}
++
++	/**
++	 * WGL - Used by the Speedscope extension
++	 */
++	public static function setProfiler( ?IParserProfiler $profiler ): void {
++		self::$profiler = $profiler;
++	}
+ }
+ 
+ /** @deprecated class alias since 1.42 */
+-- 
+2.55.0
+

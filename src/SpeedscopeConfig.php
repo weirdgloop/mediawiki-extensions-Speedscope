@@ -2,11 +2,21 @@
 
 namespace MediaWiki\Extension\Speedscope;
 
+use MediaWiki\Config\Config;
+
 /**
  * Provides configuration values from globals.
  * This is necessary because we need this before we have access to the service container.
  */
 class SpeedscopeConfig {
+
+	public const DEFAULTS = [
+		SpeedscopeConfigNames::ENVIRONMENT => 'prod',
+		SpeedscopeConfigNames::EXCLUDED_ENTRY_POINTS => [ 'cli' ],
+		SpeedscopeConfigNames::FORCED_PARAM => 'forceprofile',
+		SpeedscopeConfigNames::PERIOD => [ 'forced' => 0.0001, 'sample' => 0.001 ],
+		SpeedscopeConfigNames::SAMPLING_RATES => [ 'prod' => 0.01 ],
+	];
 
 	/**
 	 * @param string $environment
@@ -25,15 +35,16 @@ class SpeedscopeConfig {
 	}
 
 	public static function newFromGlobals(): self {
-		$names = [
-			SpeedscopeConfigNames::ENVIRONMENT,
-			SpeedscopeConfigNames::EXCLUDED_ENTRY_POINTS,
-			SpeedscopeConfigNames::FORCED_PARAM,
-			SpeedscopeConfigNames::PERIOD,
-			SpeedscopeConfigNames::SAMPLING_RATES,
-		];
 		// @phan-suppress-next-line PhanParamTooFewUnpack
-		return new self( ...array_map( static fn ( $c ) => $GLOBALS["wg$c"], $names ) );
+		return new self( ...array_map( static fn ( $c ) => $GLOBALS["wg$c"], array_keys( self::DEFAULTS ) ) );
+	}
+
+	public static function newFromConfig( Config $config ): self {
+		// @phan-suppress-next-line PhanParamTooFewUnpack
+		return new self( ...array_map(
+			static fn ( $c ) => $config->get( $c ) ?? self::DEFAULTS[$c],
+			array_keys( self::DEFAULTS )
+		) );
 	}
 
 	public function getEnvironment(): string {

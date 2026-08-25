@@ -6,6 +6,7 @@ use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
+use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\MediaWikiServices;
@@ -19,7 +20,7 @@ class ProfileHooks implements
 
 	public function __construct(
 		private readonly Config $config,
-		private readonly ?SpeedscopeProfile $profile,
+		private readonly SpeedscopeProfilerManager $profilerManager,
 	) {
 	}
 
@@ -28,7 +29,8 @@ class ProfileHooks implements
 	 * @inheritDoc
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
-		if ( $this->profile?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_URL ) {
+		$profile = $this->profilerManager->getProfile();
+		if ( $profile?->getCause() !== SpeedscopeProfile::CAUSE_FORCED_URL ) {
 			return;
 		}
 		// TODO use profile->getURL?
@@ -36,7 +38,7 @@ class ProfileHooks implements
 			$this->config->get( SpeedscopeConfigNames::ENDPOINT );
 		$out->addJsConfigVars( [
 			'speedscopeEndpoint' => $publicEndpoint,
-			'speedscopeProfileId' => $this->profile->getId(),
+			'speedscopeProfileId' => $profile->getId(),
 		] );
 		$out->addModules( 'ext.speedscope.notification' );
 	}
@@ -46,10 +48,11 @@ class ProfileHooks implements
 	 * @inheritDoc
 	 */
 	public function onOutputPageParserOutput( $outputPage, $parserOutput ): void {
-		if ( !$this->profile?->shouldStoreParserReport() ) {
+		$profile = $this->profilerManager->getProfile();
+		if ( !$profile?->shouldStoreParserReport() ) {
 			return;
 		}
-		$this->profile->setParserReport( $parserOutput->getLimitReportJSData() );
+		$profile->setParserReport( $parserOutput->getLimitReportJSData() );
 	}
 
 	/**
@@ -57,11 +60,12 @@ class ProfileHooks implements
 	 * @inheritDoc
 	 */
 	public function onParserBeforeInternalParse( $parser, &$text, $stripState ): void {
-		if ( !$this->profile ) {
+		$profile = $this->profilerManager->getProfile();
+		if ( !$profile ) {
 			return;
 		}
 		if ( str_starts_with( ( $parser->getOptions()?->getRenderReason() ?? '' ), 'page_view' ) ) {
-			$this->profile->setStoreParserReport( true );
+			$profile->setStoreParserReport( true );
 		}
 	}
 
@@ -70,8 +74,9 @@ class ProfileHooks implements
 	 * This is called as an extension function.
 	 */
 	public static function sendProfileHeader(): void {
-		$profile = MediaWikiServices::getInstance()->getService( 'Speedscope.Profile' );
-		/** @var SpeedscopeProfile|null $profile */
+		$profilerManager = MediaWikiServices::getInstance()->getService( 'Speedscope.ProfilerManager' );
+		/** @var SpeedscopeProfilerManager $profilerManager */
+		$profile = $profilerManager->getProfile();
 		if ( !$profile ) {
 			return;
 		}

@@ -22,5 +22,7 @@
 	"speedscope-editpage-profile-preview-title": "Title of the checkbox that can be ticked to generate a speedscope flamegraph for the preview.",
 	"speedscope-editpage-profile-notice": "Notice displayed when profiling a preview. $1 the URL for the profile viewer for the profile.",
 	"speedscope-editpage-profile-link-label": "Label of the link displayed in {{msg-mw|speedscope-editpage-profile-notice}}",
-	"speedscope-profile-name-preview": "Name of profiles that were forced for previews through the preference.\n\nParameters:\n* $1 - The name of the page that's being previewed"
+	"speedscope-profile-name-preview": "Name of profiles that were forced for previews through the preference.\n\nParameters:\n* $1 - The name of the page that's being previewed",
+	"speedscope-profile-type-parser": "Label for the parser profile option in the dropdown shown at ?action=edit.",
+	"speedscope-profile-type-php": "Label for the PHP profile option in the dropdown shown at ?action=edit."
 }

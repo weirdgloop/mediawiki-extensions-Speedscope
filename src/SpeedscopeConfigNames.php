@@ -9,6 +9,7 @@ class SpeedscopeConfigNames {
 
 	private const PREFIX = 'Speedscope';
 
+	public const ENABLE_PARSER_PROFILER = self::PREFIX . 'EnableParserProfiler';
 	public const ENDPOINT = self::PREFIX . 'Endpoint';
 	public const ENVIRONMENT = self::PREFIX . 'Environment';
 	public const EXCLUDED_ENTRY_POINTS = self::PREFIX . 'ExcludedEntryPoints';

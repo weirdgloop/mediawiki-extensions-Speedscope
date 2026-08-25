@@ -2,7 +2,7 @@
 
 namespace MediaWiki\Extension\Speedscope\Tests\Integration;
 
-use MediaWiki\Extension\Speedscope\Profiler\ExcimerSpeedscopeProfiler;
+use MediaWiki\Extension\Speedscope\Profiler\Excimer\ExcimerSpeedscopeProfiler;
 use MediaWikiIntegrationTestCase;
 
 /**
