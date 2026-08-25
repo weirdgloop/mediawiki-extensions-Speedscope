@@ -10,7 +10,6 @@ use MediaWiki\Extension\Speedscope\SpeedscopeConfig;
 use MediaWiki\Extension\Speedscope\SpeedscopeLogger;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Extension\Speedscope\Statsd\SpeedscopeStatsdLogger;
-use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
 /**
