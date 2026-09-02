@@ -1,4 +1,4 @@
-name: ci.yml
+name: Run CI
 on:
   push:
     branches: [ main, REL* ]
@@ -6,10 +6,7 @@ on:
     branches: [ main, REL* ]
 
 jobs:
-  run-ci:
-    name: "PHPUnit: MW ${{ matrix.mw }}, PHP ${{ matrix.php }}"
-    continue-on-error: ${{ matrix.experimental }}
-
+  ci:
     strategy:
       matrix:
         include:
@@ -26,56 +23,10 @@ jobs:
             php: 8.4
             experimental: true
 
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: mbstring, intl, zlib, excimer
-          tools: composer
-
-      - name: Cache MediaWiki
-        id: cache-mediawiki
-        uses: actions/cache@v5
-        with:
-          path: |
-            mediawiki
-            !mediawiki/extensions/
-            !mediawiki/vendor/
-          key: mw_${{ matrix.mw }}-php${{ matrix.php }}-v4
-
-      - name: Cache Composer cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.composer/cache
-          key: composer-php${{ matrix.php }}
-
-      - uses: actions/checkout@v6
-        with:
-          path: EarlyCopy
-
-      - name: Install MediaWiki
-        if: steps.cache-mediawiki.outputs.cache-hit != 'true'
-        run: bash EarlyCopy/.github/workflows/installWiki.sh ${{ matrix.mw }}
-
-      - uses: actions/checkout@v6
-        with:
-          path: mediawiki/extensions/Speedscope
-
-      - name: Composer update (core)
-        run: composer update
-        working-directory: mediawiki
-
-      - name: Run PHPUnit
-        run: composer run phpunit extensions/Speedscope/tests
-        working-directory: mediawiki
-
-      - name: Composer update (extension)
-        run: composer update
-        working-directory: mediawiki/extensions/Speedscope
-
-      - name: Run phan
-        working-directory: mediawiki/extensions/Speedscope
-        run: composer run phan
+    uses: weirdgloop/ci-workflows/.github/workflows/extension-ci.yml@main
+    with:
+      extension-name: 'Speedscope'
+      mw-branch: ${{ matrix.mw }}
+      php-version: ${{ matrix.php }}
+      php-extensions: 'zlib, excimer'
+      experimental: ${{ matrix.experimental }}
