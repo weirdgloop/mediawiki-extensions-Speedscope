@@ -10,23 +10,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - mw-branch: 'REL1_45'
+          - mw-branch: REL1_45
             php-version: 8.2
             experimental: false
-          - mw-branch: 'REL1_46'
+          - mw-branch: REL1_46
             php-version: 8.3
             experimental: false
-          - mw-branch: 'master'
+          - mw-branch: master
             php-version: 8.3
             experimental: true
-          - mw-branch: 'master'
+          - mw-branch: master
             php-version: 8.4
             experimental: true
 
     uses: weirdgloop/ci-workflows/.github/workflows/extension-ci.yml@main
     with:
-      extension-name: 'Speedscope'
+      extension-name: Speedscope
       mw-branch: ${{ matrix.mw-branch }}
       php-version: ${{ matrix.php-version }}
-      php-extensions: 'zlib, excimer'
+      php-extensions: zlib, excimer
       experimental: ${{ matrix.experimental }}
