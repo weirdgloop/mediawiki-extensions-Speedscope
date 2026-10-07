@@ -1,0 +1,24 @@
+{
+	"@metadata": {
+		"authors": [
+			"Leo768"
+		]
+	},
+	"speedscope-desc": "允许生成 Speedscope 档案",
+	"speedscope-notification": "$1（$2、$3）",
+	"speedscope-notification-link-view": "查看档案",
+	"speedscope-notification-link-json": "JSON",
+	"speedscope-notification-link-metadata": "元数据",
+	"speedscope-notification-success": "档案纪录成功",
+	"speedscope-profile-previews-label": "可为预览生成火焰图",
+	"speedscope-profile-previews-help": "于编辑界面加入为页面预览生成火焰图的按钮。",
+	"speedscope-parser-report-label": "speedscope 档案",
+	"speedscope-parser-report-link-text": "查看",
+	"speedscope-editpage-profile-preview-label": "生成火焰图",
+	"speedscope-editpage-profile-preview-title": "为预览生成 speedscope 火焰图。",
+	"speedscope-editpage-profile-notice": "可于$1查看此次预览的 speedscope 档案。",
+	"speedscope-editpage-profile-link-label": "此处",
+	"speedscope-profile-name-preview": "预览“$1”",
+	"speedscope-profile-type-parser": "解析器",
+	"speedscope-profile-type-php": "PHP"
+}
