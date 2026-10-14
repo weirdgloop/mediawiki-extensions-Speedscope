@@ -4,7 +4,7 @@
 			"minejango2"
 		]
 	},
-	"speedscope-desc": "Speedscope 프로필 생성을 허용",
+	"speedscope-desc": "Speedscope 프로필 생성을 허용합니다",
 	"speedscope-notification": "$1 ($2, $3)",
 	"speedscope-notification-link-view": "프로필 보기",
 	"speedscope-notification-link-json": "JSON",
