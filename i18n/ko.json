@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": [
+			"minejango2"
+		]
+	},
+	"speedscope-desc": "Speedscope 프로필 생성을 허용",
+	"speedscope-notification": "$1 ($2, $3)",
+	"speedscope-notification-link-view": "프로필 보기",
+	"speedscope-notification-link-json": "JSON",
+	"speedscope-notification-link-metadata": "메타데이터",
+	"speedscope-notification-success": "성공적으로 프로필을 기록했습니다",
+	"speedscope-log-error-no-data": "데이터 없이 프로필을 기록하려 했습니다!",
+	"speedscope-log-error-no-token": "설정된 토큰이 없습니다!",
+	"speedscope-log-error-request-failed": "요청에 실패했습니다: $1",
+	"speedscope-log-error-request-bad-status": "요청으로부터 잘못된 상태 코드 $1이(가) 반환되었습니다. 답변: $2",
+	"speedscope-profile-previews-label": "미리 보기에 대한 플레임 그래프 생성",
+	"speedscope-profile-previews-help": "편집 인터페이스에다 페이지 미리보기에 대한 플레임 그래프를 생성할 수 있는 버튼을 추가합니다.",
+	"speedscope-parser-report-label": "Speedscope 프로필",
+	"speedscope-parser-report-link-text": "보기",
+	"speedscope-editpage-profile-preview-label": "플레임 그래프 생성",
+	"speedscope-editpage-profile-preview-title": "미리 보기에 대한 speedscope 플레임 그래프를 생성합니다.",
+	"speedscope-editpage-profile-notice": "이 미리 보기의 speedscope 프로필은 $1에서 볼 수 있습니다.",
+	"speedscope-editpage-profile-link-label": "이 곳",
+	"speedscope-profile-name-preview": "$1 미리 보기",
+	"speedscope-profile-type-parser": "파서",
+	"speedscope-profile-type-php": "PHP"
+}
