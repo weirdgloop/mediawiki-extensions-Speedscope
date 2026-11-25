@@ -95,8 +95,8 @@ class ParserSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 
 		$profiler->stopRecording();
 
-		if ( version_compare( MW_VERSION, '1.46', '>=' ) ) {
-			// 1.46+
+		if ( version_compare( MW_VERSION, '1.47', '>=' ) ) {
+			// 1.47+
 			$expectedSamples = 27;
 			$expectedFrames = [
 				[ 'name' => (string)$page ],
