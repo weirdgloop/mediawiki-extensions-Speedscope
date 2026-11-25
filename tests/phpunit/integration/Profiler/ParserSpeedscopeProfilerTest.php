@@ -95,32 +95,55 @@ class ParserSpeedscopeProfilerTest extends MediaWikiIntegrationTestCase {
 
 		$profiler->stopRecording();
 
-		$expectedFrames = [
-			[ 'name' => (string)$page ],
-			[ 'name' => '{{Template:' . $template->getDBkey() . '}}' ],
-			// TODO fix this format
-			[ 'name' => '{{Template:int:editpage}}' ],
-			[ 'name' => 'Sanitizing HTML' ],
-			[ 'name' => 'Tables' ],
-			[ 'name' => 'Magic Words' ],
-			[ 'name' => 'Internal Links' ],
-			[ 'name' => 'External Links' ],
-			[ 'name' => 'Magic Links' ],
-			[ 'name' => 'Headings' ],
-			[ 'name' => 'Block Levels' ],
-			[ 'name' => 'Link holders' ],
-			[ 'name' => 'Language Conversion' ],
-			[ 'name' => 'TOC' ],
-			[ 'name' => 'Tidying' ],
-		];
+		if ( version_compare( MW_VERSION, '1.46', '>=' ) ) {
+			// 1.46+
+			$expectedSamples = 27;
+			$expectedFrames = [
+				[ 'name' => (string)$page ],
+				[ 'name' => '{{Template:' . $template->getDBkey() . '}}' ],
+				// TODO fix this format
+				[ 'name' => '{{Template:int:editpage}}' ],
+				[ 'name' => 'Sanitizing HTML' ],
+				[ 'name' => 'Tables' ],
+				[ 'name' => 'Magic Words' ],
+				[ 'name' => 'Internal Links' ],
+				[ 'name' => 'External Links' ],
+				[ 'name' => 'Magic Links' ],
+				[ 'name' => 'Headings' ],
+				[ 'name' => 'Block Levels' ],
+				[ 'name' => 'Link holders' ],
+				[ 'name' => 'TOC' ],
+				[ 'name' => 'Tidying' ],
+			];
+		} else {
+			$expectedSamples = 29;
+			$expectedFrames = [
+				[ 'name' => (string)$page ],
+				[ 'name' => '{{Template:' . $template->getDBkey() . '}}' ],
+				// TODO fix this format
+				[ 'name' => '{{Template:int:editpage}}' ],
+				[ 'name' => 'Sanitizing HTML' ],
+				[ 'name' => 'Tables' ],
+				[ 'name' => 'Magic Words' ],
+				[ 'name' => 'Internal Links' ],
+				[ 'name' => 'External Links' ],
+				[ 'name' => 'Magic Links' ],
+				[ 'name' => 'Headings' ],
+				[ 'name' => 'Block Levels' ],
+				[ 'name' => 'Link holders' ],
+				[ 'name' => 'Language Conversion' ],
+				[ 'name' => 'TOC' ],
+				[ 'name' => 'Tidying' ],
+			];
+		}
 		$this->assertEquals( $expectedFrames, $data->frames );
 		$this->assertArrayEquals(
 			array_column( $expectedFrames, 'name' ),
 			array_keys( $data->frameMap ),
 		);
 		$this->assertCount( 0, $data->currentStack );
-		$this->assertCount( 29, $data->samples );
-		$this->assertCount( 29, $data->weights );
+		$this->assertCount( $expectedSamples, $data->samples );
+		$this->assertCount( $expectedSamples, $data->weights );
 	}
 
 	/** @dataProvider provideTestGetTemplateFrameName */

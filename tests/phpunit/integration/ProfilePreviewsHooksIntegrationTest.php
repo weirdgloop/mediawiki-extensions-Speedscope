@@ -12,6 +12,7 @@ use MediaWiki\Extension\Speedscope\Profiler\Parser\ParserSpeedscopeProfiler;
 use MediaWiki\Extension\Speedscope\SpeedscopeConfigNames;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfile;
 use MediaWiki\Extension\Speedscope\SpeedscopeProfilerManager;
+use MediaWiki\MainConfigNames;
 use MediaWiki\Page\Article;
 use MediaWiki\Parser\Parser;
 use MediaWiki\Parser\ParserOutput;
@@ -53,6 +54,7 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 			SpeedscopeConfigNames::ENDPOINT => 'http://localhost:3000',
 			SpeedscopeConfigNames::ENVIRONMENT => 'prod',
 			SpeedscopeConfigNames::ENABLE_PARSER_PROFILER => $parserProfilerEnabled,
+			MainConfigNames::UseParsoidParser => false,
 		] );
 
 		$profilerManager = $this->getServiceContainer()->get( 'Speedscope.ProfilerManager' );
