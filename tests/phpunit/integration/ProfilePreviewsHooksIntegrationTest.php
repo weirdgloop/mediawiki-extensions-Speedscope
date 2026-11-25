@@ -53,6 +53,8 @@ class ProfilePreviewsHooksIntegrationTest extends MediaWikiIntegrationTestCase {
 			SpeedscopeConfigNames::ENDPOINT => 'http://localhost:3000',
 			SpeedscopeConfigNames::ENVIRONMENT => 'prod',
 			SpeedscopeConfigNames::ENABLE_PARSER_PROFILER => $parserProfilerEnabled,
+			// Not using MainConfigNames here, as these tests also need to support 1.45
+			'UseParsoidParser' => false,
 		] );
 
 		$profilerManager = $this->getServiceContainer()->get( 'Speedscope.ProfilerManager' );
